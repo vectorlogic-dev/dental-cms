@@ -1,4 +1,5 @@
 import { useQuery } from 'react-query';
+import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { format } from 'date-fns';
 
@@ -12,7 +13,9 @@ export default function Appointments() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Appointments</h1>
-        <button className="btn btn-primary">Schedule Appointment</button>
+        <Link to="/appointments/new" className="btn btn-primary">
+          Schedule Appointment
+        </Link>
       </div>
 
       <div className="card">
@@ -28,6 +31,7 @@ export default function Appointments() {
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">Dentist</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -57,11 +61,19 @@ export default function Appointments() {
                         {apt.status}
                       </span>
                     </td>
+                    <td className="py-3 px-4">
+                      <Link
+                        to={`/appointments/${apt._id}/edit`}
+                        className="text-primary-600 hover:text-primary-700 font-medium mr-4"
+                      >
+                        Edit
+                      </Link>
+                    </td>
                   </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-gray-500">
+                    <td colSpan={6} className="py-8 text-center text-gray-500">
                       No appointments found
                     </td>
                   </tr>

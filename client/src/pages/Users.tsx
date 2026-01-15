@@ -1,4 +1,5 @@
 import { useQuery } from 'react-query';
+import { Link } from 'react-router-dom';
 import api from '../utils/api';
 
 export default function Users() {
@@ -11,7 +12,9 @@ export default function Users() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Users</h1>
-        <button className="btn btn-primary">Add User</button>
+        <Link to="/users/new" className="btn btn-primary">
+          Add User
+        </Link>
       </div>
 
       <div className="card">
@@ -26,6 +29,7 @@ export default function Users() {
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">Email</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">Role</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -48,11 +52,19 @@ export default function Users() {
                         {user.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+                    <td className="py-3 px-4">
+                      <Link
+                        to={`/users/${user._id}/edit`}
+                        className="text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        Edit
+                      </Link>
+                    </td>
                   </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-gray-500">
+                    <td colSpan={5} className="py-8 text-center text-gray-500">
                       No users found
                     </td>
                   </tr>

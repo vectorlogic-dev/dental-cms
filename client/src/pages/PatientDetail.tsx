@@ -1,10 +1,13 @@
-import { useParams } from 'react-router-dom';
-import { useQuery } from 'react-query';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/api';
 import { format } from 'date-fns';
+import { toast } from 'react-toastify';
 
 export default function PatientDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: patient, isLoading } = useQuery(
     ['patient', id],
@@ -14,6 +17,28 @@ export default function PatientDetail() {
     },
     { enabled: !!id }
   );
+
+  const deleteMutation = useMutation(
+    async () => {
+      await api.delete(`/patients/${id}`);
+    },
+    {
+      onSuccess: () => {
+        toast.success('Patient deactivated successfully');
+        queryClient.invalidateQueries('patients');
+        navigate('/patients');
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || 'Failed to deactivate patient');
+      },
+    }
+  );
+
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to deactivate this patient?')) {
+      deleteMutation.mutate();
+    }
+  };
 
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>;
@@ -25,9 +50,19 @@ export default function PatientDetail() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">
-        {patient.firstName} {patient.lastName}
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">
+          {patient.firstName} {patient.lastName}
+        </h1>
+        <div className="flex gap-2">
+          <Link to={`/patients/${id}/edit`} className="btn btn-primary">
+            Edit
+          </Link>
+          <button onClick={handleDelete} className="btn btn-danger" disabled={deleteMutation.isLoading}>
+            {deleteMutation.isLoading ? 'Deactivating...' : 'Deactivate'}
+          </button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card">
