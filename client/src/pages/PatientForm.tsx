@@ -21,7 +21,7 @@ export default function PatientForm() {
     city: '',
     state: '',
     zipCode: '',
-    country: 'USA',
+    country: '',
     emergencyContactName: '',
     emergencyContactRelationship: '',
     emergencyContactPhone: '',
@@ -54,7 +54,7 @@ export default function PatientForm() {
         city: patient.address?.city || '',
         state: patient.address?.state || '',
         zipCode: patient.address?.zipCode || '',
-        country: patient.address?.country || 'USA',
+        country: patient.address?.country || '',
         emergencyContactName: patient.emergencyContact?.name || '',
         emergencyContactRelationship: patient.emergencyContact?.relationship || '',
         emergencyContactPhone: patient.emergencyContact?.phone || '',
@@ -276,12 +276,27 @@ export default function PatientForm() {
 
             <div>
               <label className="label">Country</label>
-              <input
-                type="text"
+              <select
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 className="input"
-              />
+              >
+                <option value="">Select a country</option>
+                <option value="USA">United States</option>
+                <option value="CAN">Canada</option>
+                <option value="GBR">United Kingdom</option>
+                <option value="AUS">Australia</option>
+                <option value="PHL">Philippines</option>
+                <option value="DEU">Germany</option>
+                <option value="FRA">France</option>
+                <option value="ESP">Spain</option>
+                <option value="ITA">Italy</option>
+                <option value="JPN">Japan</option>
+                <option value="CHN">China</option>
+                <option value="IND">India</option>
+                <option value="BRA">Brazil</option>
+                <option value="MEX">Mexico</option>
+              </select>
             </div>
           </div>
         </div>

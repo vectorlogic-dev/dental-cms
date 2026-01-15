@@ -72,7 +72,7 @@ const PatientSchema: Schema = new Schema(
       city: String,
       state: String,
       zipCode: String,
-      country: { type: String, default: 'USA' },
+      country: { type: String },
     },
     emergencyContact: {
       name: String,

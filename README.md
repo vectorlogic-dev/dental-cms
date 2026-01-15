@@ -1,5 +1,7 @@
 # 🦷 Dental Customer Management System (CMS)
 
+![Dashboard Preview](docs/images/dashboard.png)
+
 A comprehensive full-stack application for managing dental practice operations, including patient records, appointments, treatments, and user management.
 
 ## ✨ Features
@@ -10,6 +12,21 @@ A comprehensive full-stack application for managing dental practice operations, 
 - **👤 User Management**: Role-based access control (Admin, Dentist, Assistant, Receptionist)
 - **📊 Dashboard**: Overview of daily appointments, patient statistics, and pending treatments
 - **🔐 Authentication**: Secure JWT-based authentication system
+- **📱 PWA Support**: Install the application as a standalone desktop or mobile app
+
+## 📸 Screenshots
+
+| Dashboard | Patients |
+| :---: | :---: |
+| ![Dashboard](docs/images/dashboard.png) | ![Patients](docs/images/patients.png) |
+
+| Appointments | Treatments |
+| :---: | :---: |
+| ![Appointments](docs/images/appointments.png) | ![Treatments](docs/images/treatments.png) |
+
+| Users |
+| :---: |
+| ![Users](docs/images/users.png) |
 
 ## 🛠️ Tech Stack
 
@@ -46,6 +63,15 @@ node --version    # Should be v18 or higher
 npm --version     # Should be 8.x or higher
 mongod --version  # Should be v6 or higher (if installed locally)
 ```
+
+## 📱 Desktop Installation (PWA)
+
+This system is built as a **Progressive Web App (PWA)**, meaning you can install it as a native desktop application:
+
+1.  Open the application in **Chrome** or **Microsoft Edge**.
+2.  Look for the **"Install" icon** (screen with a plus sign) in the right side of the address bar.
+3.  Click **"Install"**.
+4.  The application will now appear on your desktop and taskbar, opening in its own clean window without browser tabs.
 
 ## 🚀 Quick Start Guide
 
