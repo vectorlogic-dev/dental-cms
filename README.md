@@ -4,6 +4,21 @@
 
 A comprehensive full-stack application for managing dental practice operations, including patient records, appointments, treatments, and user management.
 
+## 🚀 Easy Start
+
+### Windows One-Click Launcher
+1. Double-click `start.bat`
+2. Wait for setup to finish and the app to start
+3. Open `http://localhost:3000`
+
+### Docker (All-in-One)
+1. Install Docker Desktop
+2. Run:
+```bash
+docker-compose up --build
+```
+3. Open `http://localhost:3000`
+
 ## ✨ Features
 
 - **👥 Patient Management**: Complete patient records with medical history, allergies, and contact information
