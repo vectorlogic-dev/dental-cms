@@ -4,6 +4,9 @@
   "description": "Dental Customer Management System",
   "main": "dist/server.js",
   "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ..",
+    "setup": "npm run install:all && npm run create:admin",
+    "create:admin": "npx ts-node src/server/scripts/createAdmin.ts",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "nodemon --watch src/server --exec ts-node src/server/index.ts",
     "dev:client": "cd client && npm run dev",
