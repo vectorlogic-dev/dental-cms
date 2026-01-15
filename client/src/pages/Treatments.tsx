@@ -31,8 +31,9 @@ export default function Treatments() {
                 </tr>
               </thead>
               <tbody>
-                {data?.map((treatment: any) => (
-                  <tr key={treatment._id} className="border-b border-gray-100 hover:bg-gray-50">
+                {data && data.length > 0 ? (
+                  data.map((treatment: any) => (
+                    <tr key={treatment._id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
                       {format(new Date(treatment.treatmentDate), 'MMM dd, yyyy')}
                     </td>
@@ -40,7 +41,7 @@ export default function Treatments() {
                       {treatment.patient?.firstName} {treatment.patient?.lastName}
                     </td>
                     <td className="py-3 px-4">{treatment.procedure}</td>
-                    <td className="py-3 px-4">${treatment.cost.toFixed(2)}</td>
+                    <td className="py-3 px-4">${(treatment.cost || 0).toFixed(2)}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -54,8 +55,15 @@ export default function Treatments() {
                         {treatment.status}
                       </span>
                     </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-gray-500">
+                      No treatments found
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

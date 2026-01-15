@@ -5,8 +5,12 @@ import { format } from 'date-fns';
 export default function Dashboard() {
   const { data: appointments } = useQuery('today-appointments', async () => {
     const today = new Date();
-    const startDate = format(new Date(today.setHours(0, 0, 0, 0)), 'yyyy-MM-dd');
-    const endDate = format(new Date(today.setHours(23, 59, 59, 999)), 'yyyy-MM-dd');
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+    const startDate = format(startOfDay, 'yyyy-MM-dd');
+    const endDate = format(endOfDay, 'yyyy-MM-dd');
     const response = await api.get('/appointments', {
       params: { startDate, endDate, limit: 10 },
     });

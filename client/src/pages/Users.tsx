@@ -29,7 +29,8 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody>
-                {data?.map((user: any) => (
+                {data && data.length > 0 ? (
+                  data.map((user: any) => (
                   <tr key={user._id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
                       {user.firstName} {user.lastName}
@@ -48,7 +49,14 @@ export default function Users() {
                       </span>
                     </td>
                   </tr>
-                ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center text-gray-500">
+                      No users found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

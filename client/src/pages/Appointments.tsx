@@ -31,7 +31,8 @@ export default function Appointments() {
                 </tr>
               </thead>
               <tbody>
-                {data?.map((apt: any) => (
+                {data && data.length > 0 ? (
+                  data.map((apt: any) => (
                   <tr key={apt._id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
                       {format(new Date(apt.appointmentDate), 'MMM dd, yyyy hh:mm a')}
@@ -57,7 +58,14 @@ export default function Appointments() {
                       </span>
                     </td>
                   </tr>
-                ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-gray-500">
+                      No appointments found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
