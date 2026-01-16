@@ -28,6 +28,15 @@ export interface IPatient extends Document {
     groupNumber?: string;
   };
   notes?: string;
+  dentalChart?: {
+    toothNumber: number;
+    procedures: {
+      procedure: string;
+      notes: string;
+      date: Date;
+      dentist?: mongoose.Types.ObjectId;
+    }[];
+  }[];
   createdBy: mongoose.Types.ObjectId;
   isActive: boolean;
 }
@@ -87,6 +96,15 @@ const PatientSchema: Schema = new Schema(
       groupNumber: String,
     },
     notes: String,
+    dentalChart: [{
+      toothNumber: Number,
+      procedures: [{
+        procedure: String,
+        notes: String,
+        date: { type: Date, default: Date.now },
+        dentist: { type: Schema.Types.ObjectId, ref: 'User' }
+      }]
+    }],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',

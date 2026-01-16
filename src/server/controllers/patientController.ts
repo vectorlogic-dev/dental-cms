@@ -55,7 +55,8 @@ export const getPatients = asyncHandler(
 export const getPatient = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const patient = await Patient.findById(req.params.id)
-      .populate('createdBy', 'firstName lastName');
+      .populate('createdBy', 'firstName lastName')
+      .populate('dentalChart.procedures.dentist', 'firstName lastName');
 
     if (!patient) {
       res.status(404).json({ message: 'Patient not found' });

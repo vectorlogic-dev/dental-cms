@@ -1,0 +1,325 @@
+.dc-root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.dc-chart {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.dc-svg {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.dc-gum {
+  fill: #f3b2b2;
+  opacity: 0.6;
+}
+
+.dc-tooth {
+  fill: #f9fafb;
+  stroke: #94a3b8;
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.dc-tooth:hover {
+  fill: #e2e8f0;
+}
+
+.dc-tooth:focus-visible {
+  outline: none;
+  stroke: #2563eb;
+  stroke-width: 3;
+}
+
+.dc-tooth.is-selected {
+  stroke: #0f172a;
+  stroke-width: 3;
+}
+
+.dc-midline {
+  stroke: #cbd5f5;
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+.dc-midline-label {
+  font-size: 10px;
+  fill: #64748b;
+}
+
+.dc-arch-label {
+  font-size: 12px;
+  fill: #0f172a;
+  text-anchor: middle;
+  font-weight: 600;
+}
+
+.dc-tooth-label {
+  font-size: 9px;
+  fill: #475569;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.dc-side-label {
+  font-size: 11px;
+  fill: #f59e0b;
+  font-weight: 600;
+}
+
+.dc-legend {
+  list-style: none;
+  padding: 12px 0 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px 12px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.dc-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dc-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #94a3b8;
+  display: inline-block;
+}
+
+.dc-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.dc-panel-title {
+  font-size: 16px;
+  margin: 0 0 4px;
+  color: #0f172a;
+}
+
+.dc-panel-hint {
+  margin: 0 0 16px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.dc-form {
+  display: grid;
+  gap: 12px;
+}
+
+.dc-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.dc-label {
+  font-size: 12px;
+  color: #334155;
+  display: grid;
+  gap: 6px;
+}
+
+.dc-input,
+.dc-select,
+.dc-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+  font-size: 13px;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.dc-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.dc-button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dc-button:hover {
+  background: #1d4ed8;
+}
+
+.dc-fieldset:disabled {
+  opacity: 0.6;
+}
+
+.dc-tooth.is-healthy {
+  fill: #f9fafb;
+}
+
+.dc-tooth.is-caries {
+  fill: #f87171;
+}
+
+.dc-tooth.is-missing {
+  fill: #94a3b8;
+}
+
+.dc-tooth.is-filled {
+  fill: #60a5fa;
+}
+
+.dc-tooth.is-crown {
+  fill: #fbbf24;
+}
+
+.dc-tooth.is-root_canal {
+  fill: #a78bfa;
+}
+
+.dc-tooth.is-implant {
+  fill: #34d399;
+}
+
+.dc-tooth.is-extracted {
+  fill: #fb7185;
+}
+
+.dc-tooth.is-bridge {
+  fill: #f97316;
+}
+
+.dc-legend-swatch.is-caries {
+  background: #f87171;
+}
+
+.dc-legend-swatch.is-missing {
+  background: #94a3b8;
+}
+
+.dc-legend-swatch.is-filled {
+  background: #60a5fa;
+}
+
+.dc-legend-swatch.is-crown {
+  background: #fbbf24;
+}
+
+.dc-legend-swatch.is-root_canal {
+  background: #a78bfa;
+}
+
+.dc-legend-swatch.is-implant {
+  background: #34d399;
+}
+
+.dc-legend-swatch.is-extracted {
+  background: #fb7185;
+}
+
+.dc-legend-swatch.is-bridge {
+  background: #f97316;
+}
+
+@media (max-width: 768px) {
+  .dc-root {
+    grid-template-columns: 1fr;
+  }
+
+  .dc-panel {
+    order: 2;
+  }
+}
+
+.dc-history-section {
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+
+.dc-history-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.dc-history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dc-history-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.dc-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.dc-history-proc {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.dc-history-date {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.dc-history-dentist {
+  font-size: 11px;
+  font-weight: 500;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+
+.dc-history-notes {
+  font-size: 12px;
+  color: #475569;
+  font-style: italic;
+  margin: 0;
+}
+
+.dc-history-empty {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  font-style: italic;
+  padding: 12px 0;
+}

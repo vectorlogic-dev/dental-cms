@@ -21,13 +21,15 @@ docker-compose up --build
 
 ## ✨ Features
 
-- **👥 Patient Management**: Complete patient records with medical history, allergies, and contact information
-- **📅 Appointment Scheduling**: Manage appointments with different types (checkup, cleaning, treatment, etc.)
-- **💊 Treatment Records**: Track treatments, procedures, costs, and payment status
-- **👤 User Management**: Role-based access control (Admin, Dentist, Assistant, Receptionist)
-- **📊 Dashboard**: Overview of daily appointments, patient statistics, and pending treatments
-- **🔐 Authentication**: Secure JWT-based authentication system
-- **📱 PWA Support**: Install the application as a standalone desktop or mobile app
+- **🦷 Interactive SVG Dental Chart**: Advanced modular "Teeth Template" for tracking procedures per individual tooth (Quadrants 1-4, Positions 1-8).
+- **📝 Clinical History**: Detailed procedure logging with notes, dentist attribution, and local timestamping.
+- **👥 Patient Management**: Complete patient records with medical history, allergies, and contact information.
+- **📅 Appointment Scheduling**: Manage appointments with different types (checkup, cleaning, treatment, etc.).
+- **👤 Staff Management**: Rebranded user management with role-based access control (Admin, Dentist, Assistant, Receptionist).
+- **📉 Dashboard**: Overview of daily appointments, patient statistics, and pending treatments.
+- **🔐 Authentication**: Secure JWT-based authentication system.
+- **📱 PWA Support**: Install the application as a standalone desktop or mobile app.
+- **✨ UX Optimizations**: Standardized date formatting (MM/DD/YYYY) and streamlined custom country selection.
 
 ## 📸 Screenshots
 
@@ -250,7 +252,8 @@ dental-cms/
 │       └── utils/           # Utility functions
 ├── client/                  # Frontend code
 │   ├── src/
-│   │   ├── components/      # React components
+│   │   ├── components/      # Shared React components
+│   │   ├── features/        # Modular features (e.g., dental-chart)
 │   │   ├── pages/           # Page components
 │   │   ├── store/           # Zustand stores
 │   │   └── utils/           # Utility functions

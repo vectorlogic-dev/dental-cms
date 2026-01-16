@@ -39,7 +39,7 @@ export default function Appointments() {
                   data.map((apt: any) => (
                   <tr key={apt._id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
-                      {format(new Date(apt.appointmentDate), 'MMM dd, yyyy hh:mm a')}
+                      {format(new Date(apt.appointmentDate), 'MM/dd/yyyy hh:mm a')}
                     </td>
                     <td className="py-3 px-4">
                       {apt.patient?.firstName} {apt.patient?.lastName}

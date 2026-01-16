@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/api';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
+import DentalChart from '../components/DentalChart';
 
 export default function PatientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data: patient, isLoading } = useQuery(
     ['patient', id],
@@ -16,6 +19,29 @@ export default function PatientDetail() {
       return response.data.data;
     },
     { enabled: !!id }
+  );
+
+  const { data: dentists } = useQuery(
+    'dentists',
+    async () => {
+      const response = await api.get('/users', { params: { role: 'dentist' } });
+      return response.data.data;
+    }
+  );
+
+  const saveChartMutation = useMutation(
+    async (chartData: any) => {
+      await api.put(`/patients/${id}`, { dentalChart: chartData });
+    },
+    {
+      onSuccess: () => {
+        toast.success('Dental chart updated');
+        queryClient.invalidateQueries(['patient', id]);
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || 'Failed to update dental chart');
+      },
+    }
   );
 
   const deleteMutation = useMutation(
@@ -35,9 +61,7 @@ export default function PatientDetail() {
   );
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to deactivate this patient?')) {
-      deleteMutation.mutate();
-    }
+    deleteMutation.mutate();
   };
 
   if (isLoading) {
@@ -58,11 +82,36 @@ export default function PatientDetail() {
           <Link to={`/patients/${id}/edit`} className="btn btn-primary">
             Edit
           </Link>
-          <button onClick={handleDelete} className="btn btn-danger" disabled={deleteMutation.isLoading}>
-            {deleteMutation.isLoading ? 'Deactivating...' : 'Deactivate'}
+          <button onClick={() => setShowDeleteConfirm(true)} className="btn btn-danger">
+            Deactivate
           </button>
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Deactivate Patient</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to deactivate this patient? This will remove them from the active list.</p>
+            <div className="flex gap-4 justify-end">
+              <button 
+                onClick={() => setShowDeleteConfirm(false)} 
+                className="btn btn-secondary"
+                disabled={deleteMutation.isLoading}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDelete} 
+                className="btn btn-danger"
+                disabled={deleteMutation.isLoading}
+              >
+                {deleteMutation.isLoading ? 'Deactivating...' : 'Confirm Deactivation'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card">
@@ -75,7 +124,7 @@ export default function PatientDetail() {
             <div>
               <dt className="text-sm font-medium text-gray-600">Date of Birth</dt>
               <dd className="mt-1 text-gray-900">
-                {format(new Date(patient.dateOfBirth), 'MMMM dd, yyyy')}
+                {format(new Date(patient.dateOfBirth), 'MM/dd/yyyy')}
               </dd>
             </div>
             <div>
@@ -150,6 +199,14 @@ export default function PatientDetail() {
           </div>
         )}
       </div>
+
+      <DentalChart 
+        initialData={patient.dentalChart || []} 
+        onSave={(data) => saveChartMutation.mutate(data)}
+        isLoading={saveChartMutation.isLoading}
+        storageKey={`dentalChartState:${id}`}
+        dentists={dentists || []}
+      />
     </div>
   );
 }

@@ -276,27 +276,29 @@ export default function PatientForm() {
 
             <div>
               <label className="label">Country</label>
-              <select
+              <input
+                list="country-list"
+                placeholder="Select or type a country"
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 className="input"
-              >
-                <option value="">Select a country</option>
-                <option value="USA">United States</option>
-                <option value="CAN">Canada</option>
-                <option value="GBR">United Kingdom</option>
-                <option value="AUS">Australia</option>
-                <option value="PHL">Philippines</option>
-                <option value="DEU">Germany</option>
-                <option value="FRA">France</option>
-                <option value="ESP">Spain</option>
-                <option value="ITA">Italy</option>
-                <option value="JPN">Japan</option>
-                <option value="CHN">China</option>
-                <option value="IND">India</option>
-                <option value="BRA">Brazil</option>
-                <option value="MEX">Mexico</option>
-              </select>
+              />
+              <datalist id="country-list">
+                <option value="United States" />
+                <option value="Canada" />
+                <option value="United Kingdom" />
+                <option value="Australia" />
+                <option value="Philippines" />
+                <option value="Germany" />
+                <option value="France" />
+                <option value="Spain" />
+                <option value="Italy" />
+                <option value="Japan" />
+                <option value="China" />
+                <option value="India" />
+                <option value="Brazil" />
+                <option value="Mexico" />
+              </datalist>
             </div>
           </div>
         </div>

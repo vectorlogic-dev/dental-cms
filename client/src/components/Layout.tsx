@@ -47,7 +47,7 @@ export default function Layout() {
               to="/users"
               className="block px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-primary-600"
             >
-              Users
+              Staff Management
             </Link>
           )}
         </nav>

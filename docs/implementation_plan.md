@@ -1,36 +1,37 @@
-# Implementation Plan - Convert to PWA
+# Implementation Plan - Simplify Installation
 
-The goal is to enable PWA features for the Dental CMS, allowing it to be installed as a standalone desktop application.
+The goal is to reduce the friction of setting up the Dental CMS for non-technical users by providing Docker support and a one-click launcher.
 
 ## Proposed Changes
 
-### [Frontend] [PWA Setup]
+### [DevOps] [Containerization]
 
-#### [NEW] [icon-192.png](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/client/public/icon-192.png)
-- Generate a professional dental-themed app icon (192x192).
+#### [NEW] [Dockerfile](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/Dockerfile) (Server)
+- Create a multi-stage Dockerfile to build and serve the backend.
 
-#### [NEW] [icon-512.png](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/client/public/icon-512.png)
-- Generate a professional dental-themed app icon (512x512).
+#### [NEW] [Dockerfile](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/client/Dockerfile) (Client)
+- Create a Dockerfile to build the frontend and serve it (or proxy via the server).
 
-#### [NEW] [manifest.json](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/client/public/manifest.json)
-- Create a web manifest file to define the app name, icons, and display mode.
+#### [NEW] [docker-compose.yml](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/docker-compose.yml)
+- Define services for `mongodb`, `server`, and `client`.
+- Handle environment variables and networking automatically.
 
-#### [NEW] [sw.js](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/client/public/sw.js)
-- Create a basic service worker for offline caching of static assets.
+### [Windows] [Automation]
 
-#### [MODIFY] [index.html](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/client/index.html)
-- Add the link to `manifest.json`.
-- Add meta tags for theme color and mobile-web-app-capable.
+#### [NEW] [start.bat](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/start.bat)
+- A Windows script that:
+  - Checks if Node.js is installed.
+  - Automatically creates [.env](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/.env) from a template if missing.
+  - Runs `npm run setup` if `node_modules` is missing.
+  - Starts the application.
 
-#### [MODIFY] [main.tsx](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/client/src/main.tsx)
-- Add code to register the service worker on page load.
+### [Documentation]
+
+#### [MODIFY] [README.md](file:///c:/Users/Argie%20HTC/Desktop/dental-cms/README.md)
+- Add a "🚀 Easy Start" section at the top focusing on the launcher and Docker.
 
 ## Verification Plan
 
-### Automated Tests
-- None.
-
 ### Manual Verification
-1.  **Check Installability**: Open the app in Chrome/Edge and verify the "Install" icon appears in the address bar.
-2.  **Verify Manifest**: Use Chrome DevTools (Application tab -> Manifest) to ensure everything is correctly detected.
-3.  **Test Installation**: Install the app and verify it opens in a standalone window with the correct icon.
+1.  **Test Launcher**: Run `start.bat` on the local machine and ensure it boots the app without manual terminal commands.
+2.  **Test Docker**: Run `docker-compose up` and verify the entire stack starts correctly.

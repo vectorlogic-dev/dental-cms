@@ -37,10 +37,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // Intentionally no-op on registration failure.
-    });
-  });
-}
+/*
+Example usage in a plain TS entry file:
+
+import { DentalChart } from './features/dental-chart';
+
+const mountEl = document.getElementById('app')!;
+const host = document.createElement('div');
+mountEl.appendChild(host);
+const chart = new DentalChart(host, {
+  onChange: (state) => console.log('chart state', state),
+});
+chart.mount();
+*/
