@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +7,8 @@
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900;
+    font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
   }
 }
 
@@ -35,5 +39,167 @@
 
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+}
+
+.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+.dark .bg-white {
+  background-color: #111827 !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1f2937 !important;
+}
+
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-100 {
+  border-color: #1f2937 !important;
+}
+
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-sm {
+  box-shadow: 0 10px 15px -3px rgba(2, 6, 23, 0.6),
+    0 4px 6px -4px rgba(2, 6, 23, 0.6) !important;
+}
+
+.dark .card {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+}
+
+.dark .input {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .label {
+  color: #cbd5f5;
+}
+
+.dark .btn-secondary {
+  background-color: #1f2937;
+  color: #e2e8f0;
+}
+
+.dark .btn-primary {
+  background-color: #2563eb;
+}
+
+.dark .btn-danger {
+  background-color: #b91c1c;
+}
+
+.dark a {
+  color: #93c5fd;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #1f2937 !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #1f2937 !important;
+}
+
+.dark .react-calendar {
+  background-color: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #1f2937;
+}
+
+.dark .react-calendar__navigation button {
+  color: #e2e8f0;
+}
+
+.dark .react-calendar__navigation button:enabled:hover,
+.dark .react-calendar__navigation button:enabled:focus {
+  background-color: #1f2937;
+}
+
+.dark .react-calendar__navigation button:disabled {
+  color: #475569;
+  background-color: #0b1220;
+}
+
+.dark .react-calendar__tile {
+  color: #e2e8f0;
+}
+
+.dark .react-calendar__tile:enabled:hover,
+.dark .react-calendar__tile:enabled:focus {
+  background-color: #1f2937;
+}
+
+.dark .react-calendar__tile--now {
+  background-color: #1e293b;
+}
+
+.dark .react-calendar__tile--active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.dark .react-calendar__tile:disabled {
+  background-color: #0b1220;
+  color: #475569;
+}
+
+.dark .react-calendar__month-view__weekdays {
+  color: #94a3b8;
+}
+
+.dark .react-calendar__navigation button:disabled {
+  color: #475569;
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body {
+    background-color: #ffffff;
+  }
+
+  aside,
+  header,
+  .no-print,
+  .btn {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+
+  .print-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

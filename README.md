@@ -2,9 +2,9 @@
 
 ![Dashboard Preview](docs/images/dashboard.png)
 
-A comprehensive full-stack application for managing dental practice operations, including patient records, appointments, treatments, and user management.
+Full-stack app for dental practice operations: patients, appointments, treatments, users, and an interactive dental chart.
 
-## 🚀 Easy Start
+## 🚀 Quick Start
 
 ### Windows One-Click Launcher
 1. Double-click `start.bat`
@@ -19,17 +19,24 @@ docker-compose up --build
 ```
 3. Open `http://localhost:3000`
 
+### Manual (Dev)
+```bash
+npm run install:all
+npm run create:admin
+npm run dev
+```
+
 ## ✨ Features
 
-- **🦷 Interactive SVG Dental Chart**: Advanced modular "Teeth Template" for tracking procedures per individual tooth (Quadrants 1-4, Positions 1-8).
-- **📝 Clinical History**: Detailed procedure logging with notes, dentist attribution, and local timestamping.
-- **👥 Patient Management**: Complete patient records with medical history, allergies, and contact information.
-- **📅 Appointment Scheduling**: Manage appointments with different types (checkup, cleaning, treatment, etc.).
-- **👤 Staff Management**: Rebranded user management with role-based access control (Admin, Dentist, Assistant, Receptionist).
-- **📉 Dashboard**: Overview of daily appointments, patient statistics, and pending treatments.
-- **🔐 Authentication**: Secure JWT-based authentication system.
-- **📱 PWA Support**: Install the application as a standalone desktop or mobile app.
-- **✨ UX Optimizations**: Standardized date formatting (MM/DD/YYYY) and streamlined custom country selection.
+- **🦷 Interactive SVG Dental Chart**: Track procedures per tooth (Quadrants 1–4, Positions 1–8).
+- **📝 Clinical History**: Procedure logs with notes, dentist attribution, timestamps.
+- **👥 Patient Management**: Records, medical history, allergies, and contact details.
+- **📅 Appointment Scheduling**: Checkups, cleanings, treatments, consultations, and more.
+- **👤 Staff Management**: Role-based access (Admin, Dentist, Assistant, Receptionist).
+- **📉 Dashboard**: Daily overview, patient counts, pending treatments.
+- **🔐 Authentication**: JWT-based auth.
+- **📱 PWA Support**: Installable desktop/mobile experience.
+- **✨ UX Optimizations**: Standard date formatting (MM/DD/YYYY).
 
 ## 📸 Screenshots
 
@@ -48,93 +55,56 @@ docker-compose up --build
 ## 🛠️ Tech Stack
 
 ### Backend
-- **Node.js** with **Express.js**
-- **TypeScript** for type safety
-- **MongoDB** with **Mongoose** ODM
-- **JWT** for authentication
-- **Express Validator** for input validation
+- **Node.js** + **Express**
+- **TypeScript**
+- **MongoDB** + **Mongoose**
+- **JWT**
+- **Express Validator**
 
 ### Frontend
-- **React** with **TypeScript**
-- **Vite** for fast development and building
-- **React Router** for navigation
-- **React Query** for data fetching
-- **Zustand** for state management
-- **Tailwind CSS** for styling
-- **Axios** for API requests
+- **React** + **TypeScript**
+- **Vite**
+- **React Router**
+- **React Query**
+- **Zustand**
+- **Tailwind CSS**
+- **Axios**
 
 ## 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
+- **Node.js** (v18+): https://nodejs.org/
+- **MongoDB** (v6+): https://www.mongodb.com/try/download/community (or Atlas)
+- **npm** (comes with Node)
 
-- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
-- **MongoDB** (v6 or higher) - [Download here](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (cloud)
-- **npm** (comes with Node.js) or **yarn**
-
-### Quick Check
-
-Verify your installations:
-
+Quick check:
 ```bash
-node --version    # Should be v18 or higher
-npm --version     # Should be 8.x or higher
-mongod --version  # Should be v6 or higher (if installed locally)
+node --version
+npm --version
+mongod --version
 ```
 
 ## 📱 Desktop Installation (PWA)
 
-This system is built as a **Progressive Web App (PWA)**, meaning you can install it as a native desktop application:
+1. Open the app in **Chrome** or **Edge**
+2. Click **Install** in the address bar
+3. Launch it from your desktop/taskbar
 
-1.  Open the application in **Chrome** or **Microsoft Edge**.
-2.  Look for the **"Install" icon** (screen with a plus sign) in the right side of the address bar.
-3.  Click **"Install"**.
-4.  The application will now appear on your desktop and taskbar, opening in its own clean window without browser tabs.
+## 🚀 Full Setup Guide
 
-## 🚀 Quick Start Guide
-
-### Step 1: Clone the Repository
-
+### 1) Clone the repo
 ```bash
 git clone <repository-url>
 cd dental-cms
 ```
 
-### Step 2: Install All Dependencies
-
-**Option A: One Command (Recommended)**
+### 2) Install dependencies
 ```bash
 npm run install:all
 ```
 
-This will automatically install dependencies for both the backend and frontend.
+### 3) Configure environment
 
-**Option B: Manual Installation**
-```bash
-# Install backend dependencies
-npm install
-
-# Install frontend dependencies
-cd client
-npm install
-cd ..
-```
-
-### Step 3: Set Up Environment Variables
-
-Create a `.env` file in the root directory:
-
-**Windows:**
-```bash
-copy .env.example .env
-```
-
-**Mac/Linux:**
-```bash
-cp .env.example .env
-```
-
-Or create it manually with the following content:
-
+Create `.env`:
 ```env
 PORT=5000
 NODE_ENV=development
@@ -144,96 +114,56 @@ JWT_EXPIRE=7d
 CORS_ORIGIN=http://localhost:3000
 ```
 
-> ⚠️ **Important**: Change `JWT_SECRET` to a strong, random string in production!
+> ⚠️ Change `JWT_SECRET` in production.
 
-### Step 4: Start MongoDB
+### 4) Start MongoDB
 
-**If using local MongoDB:**
-- **Windows**: MongoDB should start automatically as a service. If not, start it manually.
-- **Mac/Linux**: Run `mongod` in a terminal
+- Local: ensure MongoDB service is running
+- Atlas: set `MONGODB_URI` to your cluster connection string
 
-**If using MongoDB Atlas (Cloud):**
-- Update `MONGODB_URI` in your `.env` file with your Atlas connection string
-- No local installation needed!
-
-### Step 5: Create Admin User
-
-Create the initial admin user:
-
+### 5) Create admin user
 ```bash
 npm run create:admin
 ```
 
-This will create an admin user with:
+Default admin credentials:
 - **Email**: `admin@dentalcms.com`
 - **Password**: `admin123`
 
-> ⚠️ **Security Note**: Change this password immediately after first login!
+> ⚠️ Change this password after first login.
 
-### Step 6: Start the Application
-
-Start both the backend and frontend servers:
-
+### 6) Run the app
 ```bash
 npm run dev
 ```
 
-This will start:
-- **Backend server** on `http://localhost:5000`
-- **Frontend server** on `http://localhost:3000`
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:3000`
 
-### Step 7: Access the Application
-
-Open your browser and navigate to:
-
-```
-http://localhost:3000
-```
-
-Login with the admin credentials:
-- **Email**: `admin@dentalcms.com`
-- **Password**: `admin123`
-
-## 📝 Complete Setup Script
-
-For a complete automated setup (installs dependencies + creates admin user):
+## 📝 One-Step Setup
 
 ```bash
 npm run setup
 ```
 
-Then just start MongoDB and run `npm run dev`!
+Then run `npm run dev`.
 
 ## 🎯 Running the Application
 
-### Development Mode
-
-**Start both servers:**
+### Development
 ```bash
 npm run dev
 ```
 
-**Start servers separately:**
-
-Backend only:
+Or separately:
 ```bash
 npm run dev:server
-```
-
-Frontend only:
-```bash
 npm run dev:client
 ```
 
-### Production Mode
-
-1. Build the application:
+### Production
 ```bash
 npm run build
-```
-
-2. Start the production server:
-```bash
 npm start
 ```
 
@@ -262,25 +192,16 @@ dental-cms/
 └── package.json             # Root package.json
 ```
 
-## 🔑 Default Login Credentials
-
-After running `npm run create:admin`, you can login with:
-
-- **Email**: `admin@dentalcms.com`
-- **Password**: `admin123`
-
-> ⚠️ **Important**: Change this password immediately after first login!
-
 ## 📚 Available Scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm run install:all` | Install all dependencies (backend + frontend) |
-| `npm run setup` | Complete setup (install + create admin user) |
+| `npm run setup` | Install + create admin user |
 | `npm run create:admin` | Create initial admin user |
-| `npm run dev` | Start both servers in development mode |
-| `npm run dev:server` | Start backend server only |
-| `npm run dev:client` | Start frontend server only |
+| `npm run dev` | Start both servers (dev) |
+| `npm run dev:server` | Start backend server |
+| `npm run dev:client` | Start frontend server |
 | `npm run build` | Build for production |
 | `npm start` | Start production server |
 | `npm run lint` | Run ESLint |
@@ -321,96 +242,73 @@ After running `npm run create:admin`, you can login with:
 
 ## 👥 User Roles
 
-- **Admin**: Full access to all features including user management
-- **Dentist**: Access to patients, appointments, and treatments
-- **Assistant**: Access to patients, appointments, and treatments
-- **Receptionist**: Access to patients and appointments
+- **Admin**: Full access including user management
+- **Dentist**: Patients, appointments, treatments
+- **Assistant**: Patients, appointments, treatments
+- **Receptionist**: Patients, appointments
 
 ## 🗄️ Database Schema
 
-The application uses MongoDB with the following main collections:
-
-- **Users**: Staff members with authentication and role information
-- **Patients**: Patient records with personal, medical, and insurance information
-- **Appointments**: Scheduled appointments with status tracking
-- **Treatments**: Treatment records with procedure details and billing
+- **Users**: Staff members with auth/role data
+- **Patients**: Patient records with medical info
+- **Appointments**: Scheduled appointments
+- **Treatments**: Procedures and billing
 
 ## 🐛 Troubleshooting
 
 ### MongoDB Connection Issues
-
-**Problem**: "MongoDB connection error"
-
-**Solutions**:
-- Ensure MongoDB is running: `mongod` or check Windows Services
-- Verify `MONGODB_URI` in `.env` file is correct
-- For MongoDB Atlas, check your connection string and IP whitelist
+- Ensure MongoDB is running: `mongod` or Windows Services
+- Verify `MONGODB_URI` in `.env`
+- For Atlas, verify connection string and IP whitelist
 
 ### Port Already in Use
-
-**Problem**: "Port 5000 or 3000 already in use"
-
-**Solutions**:
-- Change `PORT` in `.env` file (for backend)
-- Kill the process using the port:
+- Change `PORT` in `.env`
+- Kill the process on the port:
   - Windows: `netstat -ano | findstr :5000` then `taskkill /PID <pid> /F`
   - Mac/Linux: `lsof -ti:5000 | xargs kill`
 
 ### Dependencies Installation Issues
-
-**Problem**: npm install fails
-
-**Solutions**:
 - Clear npm cache: `npm cache clean --force`
-- Delete `node_modules` and `package-lock.json`, then run `npm install` again
-- Ensure Node.js version is 18 or higher
+- Delete `node_modules` + `package-lock.json`, then reinstall
+- Ensure Node.js v18+
 
 ### Admin User Already Exists
-
-**Problem**: "Admin user already exists" when running `create:admin`
-
-**Solution**: This is normal if you've already created the admin user. You can either:
-- Use the existing credentials
-- Delete the user from MongoDB and run the script again
-- Create a new user through the UI (Admin → Users → Add User)
+- Use existing credentials, or
+- Delete the user from MongoDB and rerun `create:admin`, or
+- Create a new user via UI (Admin → Users → Add User)
 
 ## 🔒 Security
 
-- Passwords are hashed using bcrypt
+- Passwords hashed with bcrypt
 - JWT tokens for authentication
-- Input validation using express-validator
+- Input validation with express-validator
 - Role-based access control
 - CORS configuration
 
 ## 🧪 Development
 
-### Code Style
-
-The project uses ESLint for code linting:
-
+ESLint:
 ```bash
 npm run lint
 ```
 
-### TypeScript
-
-Both backend and frontend use TypeScript. Type checking is performed during build.
+TypeScript type checks run during build.
 
 ## 📦 Production Deployment
 
-1. Set `NODE_ENV=production` in your `.env` file
-2. Update `JWT_SECRET` to a strong, random string
-3. Update `MONGODB_URI` to your production database
-4. Update `CORS_ORIGIN` to your production frontend URL
-5. Build the application: `npm run build`
-6. Start the server: `npm start`
+1. Set `NODE_ENV=production` in `.env`
+2. Set a strong `JWT_SECRET`
+3. Set production `MONGODB_URI`
+4. Set `CORS_ORIGIN` to your frontend URL
+5. Build: `npm run build`
+6. Start: `npm start`
 
 ## 🤝 Contributing
 
 1. Create a feature branch
-2. Make your changes
+2. Make changes
 3. Test thoroughly
-4. Submit a pull request
+4. Submit a PR
 
 ## 📄 License
 
@@ -418,7 +316,7 @@ MIT
 
 ## 💬 Support
 
-For issues and questions, please open an issue on the repository.
+Please open an issue for questions or bugs.
 
 ---
 

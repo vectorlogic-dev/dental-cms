@@ -323,3 +323,72 @@
   font-style: italic;
   padding: 12px 0;
 }
+
+.dark .dc-chart,
+.dark .dc-panel {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+.dark .dc-legend,
+.dark .dc-panel-hint,
+.dark .dc-history-date,
+.dark .dc-history-notes,
+.dark .dc-history-empty {
+  color: #94a3b8;
+}
+
+.dark .dc-panel-title,
+.dark .dc-history-title,
+.dark .dc-history-proc {
+  color: #e2e8f0;
+}
+
+.dark .dc-label,
+.dark .dc-midline-label,
+.dark .dc-arch-label,
+.dark .dc-tooth-label {
+  color: #cbd5f5;
+}
+
+.dark .dc-midline {
+  stroke: #334155;
+}
+
+.dark .dc-tooth {
+  fill: #0b1220;
+  stroke: #64748b;
+}
+
+.dark .dc-tooth:hover {
+  fill: #1f2937;
+}
+
+.dark .dc-tooth.is-selected {
+  stroke: #93c5fd;
+}
+
+.dark .dc-input,
+.dark .dc-select,
+.dark .dc-textarea {
+  background: #0b1220;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .dc-button {
+  background: #2563eb;
+}
+
+.dark .dc-button:hover {
+  background: #1d4ed8;
+}
+
+.dark .dc-history-item {
+  background: #0b1220;
+  border-color: #1f2937;
+}
+
+.dark .dc-history-dentist {
+  color: #93c5fd;
+}

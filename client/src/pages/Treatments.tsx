@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
@@ -8,6 +9,15 @@ export default function Treatments() {
     const response = await api.get('/treatments', { params: { limit: 50 } });
     return response.data.data;
   });
+
+  const sortedTreatments = useMemo(() => {
+    if (!data) return [];
+    return [...data].sort((a: any, b: any) => {
+      const aTime = new Date(a.treatmentDate).getTime();
+      const bTime = new Date(b.treatmentDate).getTime();
+      return aTime - bTime;
+    });
+  }, [data]);
 
   return (
     <div>
@@ -35,11 +45,11 @@ export default function Treatments() {
                 </tr>
               </thead>
               <tbody>
-                {data && data.length > 0 ? (
-                  data.map((treatment: any) => (
+                {sortedTreatments.length > 0 ? (
+                  sortedTreatments.map((treatment: any) => (
                     <tr key={treatment._id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
-                        {format(new Date(treatment.treatmentDate), 'MMM dd, yyyy')}
+                        {format(new Date(treatment.treatmentDate), 'MM/dd/yyyy')}
                       </td>
                       <td className="py-3 px-4">
                         {treatment.patient?.firstName} {treatment.patient?.lastName}

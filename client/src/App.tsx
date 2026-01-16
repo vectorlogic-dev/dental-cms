@@ -12,6 +12,7 @@ import Treatments from './pages/Treatments';
 import TreatmentForm from './pages/TreatmentForm';
 import Users from './pages/Users';
 import UserForm from './pages/UserForm';
+import Calendar from './pages/Calendar';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         <Route path="appointments" element={<Appointments />} />
         <Route path="appointments/new" element={<AppointmentForm />} />
         <Route path="appointments/:id/edit" element={<AppointmentForm />} />
+        <Route path="calendar" element={<Calendar />} />
         <Route path="treatments" element={<Treatments />} />
         <Route path="treatments/new" element={<TreatmentForm />} />
         <Route path="treatments/:id/edit" element={<TreatmentForm />} />

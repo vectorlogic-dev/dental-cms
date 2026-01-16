@@ -4,6 +4,30 @@ import Appointment from '../models/Appointment';
 import { asyncHandler } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 
+const buildAppointmentQuery = (queryParams: AuthRequest['query']) => {
+  const {
+    startDate,
+    endDate,
+    status,
+    patientId,
+    dentistId,
+  } = queryParams;
+
+  const query: any = {};
+
+  if (startDate || endDate) {
+    query.appointmentDate = {};
+    if (startDate) query.appointmentDate.$gte = new Date(startDate as string);
+    if (endDate) query.appointmentDate.$lte = new Date(endDate as string);
+  }
+
+  if (status) query.status = status;
+  if (patientId) query.patient = patientId;
+  if (dentistId) query.dentist = dentistId;
+
+  return query;
+};
+
 // @desc    Get all appointments
 // @route   GET /api/appointments
 // @access  Private
@@ -12,32 +36,19 @@ export const getAppointments = asyncHandler(
     const {
       page = 1,
       limit = 50,
-      startDate,
-      endDate,
-      status,
-      patientId,
-      dentistId,
     } = req.query;
 
-    const query: any = {};
-
-    if (startDate || endDate) {
-      query.appointmentDate = {};
-      if (startDate) query.appointmentDate.$gte = new Date(startDate as string);
-      if (endDate) query.appointmentDate.$lte = new Date(endDate as string);
-    }
-
-    if (status) query.status = status;
-    if (patientId) query.patient = patientId;
-    if (dentistId) query.dentist = dentistId;
+    const query = buildAppointmentQuery(req.query);
+    const limitValue = Number(limit) * 1;
+    const pageValue = Number(page);
 
     const appointments = await Appointment.find(query)
       .populate('patient', 'firstName lastName phone patientNumber')
       .populate('dentist', 'firstName lastName')
       .populate('createdBy', 'firstName lastName')
       .sort({ appointmentDate: 1 })
-      .limit(Number(limit) * 1)
-      .skip((Number(page) - 1) * Number(limit));
+      .limit(limitValue)
+      .skip((pageValue - 1) * Number(limit));
 
     const total = await Appointment.countDocuments(query);
 
@@ -45,7 +56,7 @@ export const getAppointments = asyncHandler(
       success: true,
       data: appointments,
       pagination: {
-        page: Number(page),
+        page: pageValue,
         limit: Number(limit),
         total,
         pages: Math.ceil(total / Number(limit)),

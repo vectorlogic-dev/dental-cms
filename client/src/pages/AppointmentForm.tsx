@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
+import { format } from 'date-fns';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 export default function AppointmentForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isEdit = !!id;
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const [formData, setFormData] = useState({
     patient: '',
@@ -32,6 +36,25 @@ export default function AppointmentForm() {
     return response.data.data;
   });
 
+  const { data: bookedAppointments } = useQuery(
+    ['appointments-by-date', formData.dentist, formData.appointmentDate],
+    async () => {
+      const isoDate = toIsoDate(formData.appointmentDate);
+      const startOfDay = new Date(`${isoDate}T00:00:00`);
+      const endOfDay = new Date(`${isoDate}T23:59:59.999`);
+      const response = await api.get('/appointments', {
+        params: {
+          dentistId: formData.dentist,
+          startDate: startOfDay.toISOString(),
+          endDate: endOfDay.toISOString(),
+          limit: 200,
+        },
+      });
+      return response.data.data;
+    },
+    { enabled: !!formData.dentist && !!formData.appointmentDate }
+  );
+
   // Fetch appointment data if editing
   const { data: appointment, isLoading: isLoadingAppointment } = useQuery(
     ['appointment', id],
@@ -42,6 +65,70 @@ export default function AppointmentForm() {
     { enabled: isEdit }
   );
 
+  const toIsoDate = (value: string) => {
+    if (!value) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+    const parts = value.split('/');
+    if (parts.length !== 3) return value;
+
+    const [month, day, year] = parts.map((part) => part.trim());
+    if (!month || !day || !year) return value;
+
+    const paddedMonth = month.padStart(2, '0');
+    const paddedDay = day.padStart(2, '0');
+    return `${year}-${paddedMonth}-${paddedDay}`;
+  };
+
+  const formatDateInput = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 8);
+    const month = digits.slice(0, 2);
+    const day = digits.slice(2, 4);
+    const year = digits.slice(4, 8);
+
+    if (digits.length <= 2) return month;
+    if (digits.length <= 4) return `${month}/${day}`;
+    return `${month}/${day}/${year}`;
+  };
+
+  const parseMmddyyyy = (value: string) => {
+    const parts = value.split('/');
+    if (parts.length !== 3) return null;
+    const [month, day, year] = parts.map((part) => parseInt(part, 10));
+    if (!month || !day || !year) return null;
+    const date = new Date(year, month - 1, day);
+    if (Number.isNaN(date.getTime())) return null;
+    return date;
+  };
+
+  const isPastDate = (value: string) => {
+    const parsed = parseMmddyyyy(value);
+    if (!parsed) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    parsed.setHours(0, 0, 0, 0);
+    return parsed < today;
+  };
+
+  const blockedTimeSlots = useMemo(() => {
+    const blocked = new Set<number>();
+    if (!bookedAppointments || !formData.appointmentDate) return blocked;
+
+    bookedAppointments.forEach((apt: any) => {
+      if (apt._id === id) return;
+      if (apt.status === 'cancelled' || apt.status === 'no-show') return;
+      const start = new Date(apt.appointmentDate);
+      const duration = Number(apt.duration) || 30;
+      const startMinutes = start.getHours() * 60 + start.getMinutes();
+      const endMinutes = startMinutes + duration;
+      for (let t = startMinutes; t < endMinutes; t += 30) {
+        blocked.add(t);
+      }
+    });
+
+    return blocked;
+  }, [bookedAppointments, formData.appointmentDate, id]);
+
   // Populate form when appointment data loads
   useEffect(() => {
     if (appointment) {
@@ -49,7 +136,7 @@ export default function AppointmentForm() {
       setFormData({
         patient: appointment.patient._id || appointment.patient,
         dentist: appointment.dentist._id || appointment.dentist,
-        appointmentDate: date.toISOString().split('T')[0],
+        appointmentDate: format(date, 'MM/dd/yyyy'),
         appointmentTime: date.toTimeString().slice(0, 5),
         duration: appointment.duration?.toString() || '30',
         type: appointment.type || 'checkup',
@@ -99,8 +186,13 @@ export default function AppointmentForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isPastDate(formData.appointmentDate)) {
+      toast.error('Please select a future appointment date.');
+      return;
+    }
+
     const appointmentDateTime = new Date(
-      `${formData.appointmentDate}T${formData.appointmentTime}`
+      `${toIsoDate(formData.appointmentDate)}T${formData.appointmentTime}`
     );
 
     const data = {
@@ -168,24 +260,76 @@ export default function AppointmentForm() {
 
           <div>
             <label className="label">Date *</label>
-            <input
-              type="date"
-              value={formData.appointmentDate}
-              onChange={(e) => setFormData({ ...formData, appointmentDate: e.target.value })}
-              className="input"
-              required
-            />
+            <div className="relative">
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d{2}/\d{2}/\d{4}"
+                placeholder="MM/DD/YYYY"
+                value={formData.appointmentDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, appointmentDate: formatDateInput(e.target.value) })
+                }
+                className="input pr-28"
+                required
+              />
+              <button
+                type="button"
+                aria-label="Open calendar"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-primary-600 hover:text-primary-700"
+                onClick={() => setShowCalendar((prev) => !prev)}
+              >
+                🗓️
+              </button>
+              {showCalendar && (
+                <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-md p-2">
+                  <Calendar
+                    onChange={(value) => {
+                      const selected = Array.isArray(value) ? value[0] : value;
+                      if (selected) {
+                        setFormData({
+                          ...formData,
+                          appointmentDate: format(selected, 'MM/dd/yyyy'),
+                        });
+                        setShowCalendar(false);
+                      }
+                    }}
+                    minDate={new Date()}
+                    value={parseMmddyyyy(formData.appointmentDate) || new Date()}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
             <label className="label">Time *</label>
-            <input
-              type="time"
+            <select
               value={formData.appointmentTime}
               onChange={(e) => setFormData({ ...formData, appointmentTime: e.target.value })}
               className="input"
               required
-            />
+            >
+              <option value="">Select time</option>
+              {Array.from({ length: 18 }, (_, index) => {
+                const totalMinutes = 8 * 60 + index * 30;
+                const hours24 = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                const timeValue = `${String(hours24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+                const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+                const period = hours24 < 12 ? 'AM' : 'PM';
+                const display = `${hours12}:${String(minutes).padStart(2, '0')} ${period}`;
+
+                const isBlocked = blockedTimeSlots.has(totalMinutes);
+
+                return (
+                  <option key={timeValue} value={timeValue} disabled={isBlocked}>
+                    {display} {isBlocked ? '(Booked)' : ''}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           <div>
@@ -196,9 +340,7 @@ export default function AppointmentForm() {
               className="input"
               required
             >
-              <option value="15">15 minutes</option>
               <option value="30">30 minutes</option>
-              <option value="45">45 minutes</option>
               <option value="60">60 minutes</option>
               <option value="90">90 minutes</option>
               <option value="120">120 minutes</option>

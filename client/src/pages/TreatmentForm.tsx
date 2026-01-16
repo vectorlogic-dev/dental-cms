@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
+import { format } from 'date-fns';
 
 export default function TreatmentForm() {
   const { id } = useParams();
@@ -187,7 +188,7 @@ export default function TreatmentForm() {
               <option value="">No appointment</option>
               {appointments?.map((apt: any) => (
                 <option key={apt._id} value={apt._id}>
-                  {new Date(apt.appointmentDate).toLocaleString()} - {apt.type}
+                  {format(new Date(apt.appointmentDate), 'MM/dd/yyyy hh:mm a')} - {apt.type}
                 </option>
               ))}
             </select>

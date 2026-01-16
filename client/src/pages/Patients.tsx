@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 
 export default function Patients() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
 
   const { data, isLoading, refetch } = useQuery(
     ['patients', page, search],
@@ -53,32 +54,27 @@ export default function Patients() {
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">Name</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">Phone</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">Email</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data?.data && data.data.length > 0 ? (
                     data.data.map((patient: any) => (
-                      <tr key={patient._id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr
+                        key={patient._id}
+                        className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => navigate(`/patients/${patient._id}`)}
+                      >
                         <td className="py-3 px-4">{patient.patientNumber}</td>
                         <td className="py-3 px-4">
                           {patient.firstName} {patient.lastName}
                         </td>
                         <td className="py-3 px-4">{patient.phone}</td>
                         <td className="py-3 px-4">{patient.email || '-'}</td>
-                        <td className="py-3 px-4">
-                          <Link
-                            to={`/patients/${patient._id}`}
-                            className="text-primary-600 hover:text-primary-700 font-medium"
-                          >
-                            View
-                          </Link>
-                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-gray-500">
+                      <td colSpan={4} className="py-8 text-center text-gray-500">
                         No patients found
                       </td>
                     </tr>

@@ -1,14 +1,29 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,6 +44,12 @@ export default function Layout() {
             className="block px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-primary-600"
           >
             Patients
+          </Link>
+          <Link
+            to="/calendar"
+            className="block px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-primary-600 font-medium"
+          >
+            Calendar
           </Link>
           <Link
             to="/appointments"
@@ -61,6 +82,14 @@ export default function Layout() {
             <h2 className="text-xl font-semibold text-gray-800">Welcome, {user?.firstName}</h2>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600 capitalize">{user?.role}</span>
+            <button
+              onClick={() => setIsDark((prev) => !prev)}
+              className="btn btn-secondary text-sm w-9 h-9 flex items-center justify-center"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={isDark ? 'Light mode' : 'Dark mode'}
+            >
+              {isDark ? '☀️' : '🌙'}
+            </button>
               <button
                 onClick={handleLogout}
                 className="btn btn-secondary text-sm"
