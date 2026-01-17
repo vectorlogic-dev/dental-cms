@@ -19,7 +19,7 @@ router.get('/', getPatients);
 
 router.get(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid patient ID is required')],
   validateRequest,
   getPatient
 );
@@ -41,7 +41,7 @@ router.post(
 router.put(
   '/:id',
   [
-    param('id').isMongoId(),
+    param('id').isString().notEmpty().withMessage('Valid patient ID is required'),
     body('email').optional().isEmail().normalizeEmail(),
     body('gender').optional().isIn(['male', 'female', 'other']),
   ],
@@ -51,7 +51,7 @@ router.put(
 
 router.delete(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid patient ID is required')],
   validateRequest,
   deletePatient
 );

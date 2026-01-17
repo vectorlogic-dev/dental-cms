@@ -163,10 +163,10 @@ export const getTreatment = asyncHandler(
 // @access  Private
 export const createTreatment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const { patient, dentist, appointment, ...rest } = req.body;
+    const { patient, dentist, appointment, ...payload } = req.body;
     const treatment = await prisma.treatment.create({
       data: {
-        ...rest,
+        ...payload,
         patientId: patient,
         dentistId: dentist,
         appointmentId: appointment || undefined,
@@ -189,24 +189,24 @@ export const createTreatment = asyncHandler(
 
     const {
       id,
-      patient,
-      dentist,
+      patient: patientRecord,
+      dentist: dentistRecord,
       patientId: _patientId,
       dentistId: _dentistId,
       appointmentId: _appointmentId,
       createdById: _createdById,
-      ...rest
+      ...treatmentData
     } = populatedTreatment;
     res.status(201).json({
       success: true,
       data: {
         _id: id,
-        ...rest,
-        patient: patient
-          ? { _id: patient.id, firstName: patient.firstName, lastName: patient.lastName, patientNumber: patient.patientNumber }
+        ...treatmentData,
+        patient: patientRecord
+          ? { _id: patientRecord.id, firstName: patientRecord.firstName, lastName: patientRecord.lastName, patientNumber: patientRecord.patientNumber }
           : undefined,
-        dentist: dentist
-          ? { _id: dentist.id, firstName: dentist.firstName, lastName: dentist.lastName }
+        dentist: dentistRecord
+          ? { _id: dentistRecord.id, firstName: dentistRecord.firstName, lastName: dentistRecord.lastName }
           : undefined,
       },
     });
@@ -218,12 +218,12 @@ export const createTreatment = asyncHandler(
 // @access  Private
 export const updateTreatment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const { patient, dentist, appointment, ...rest } = req.body;
+    const { patient, dentist, appointment, ...payload } = req.body;
     try {
       const treatment = await prisma.treatment.update({
         where: { id: req.params.id },
         data: {
-          ...rest,
+          ...payload,
           ...(patient ? { patientId: patient } : {}),
           ...(dentist ? { dentistId: dentist } : {}),
           ...(appointment !== undefined ? { appointmentId: appointment || null } : {}),
@@ -236,24 +236,24 @@ export const updateTreatment = asyncHandler(
 
       const {
         id,
-        patient,
-        dentist,
+        patient: patientRecord,
+        dentist: dentistRecord,
         patientId: _patientId,
         dentistId: _dentistId,
         appointmentId: _appointmentId,
         createdById: _createdById,
-        ...rest
+        ...treatmentData
       } = treatment;
       res.json({
         success: true,
         data: {
           _id: id,
-          ...rest,
-          patient: patient
-            ? { _id: patient.id, firstName: patient.firstName, lastName: patient.lastName, patientNumber: patient.patientNumber }
+          ...treatmentData,
+          patient: patientRecord
+            ? { _id: patientRecord.id, firstName: patientRecord.firstName, lastName: patientRecord.lastName, patientNumber: patientRecord.patientNumber }
             : undefined,
-          dentist: dentist
-            ? { _id: dentist.id, firstName: dentist.firstName, lastName: dentist.lastName }
+          dentist: dentistRecord
+            ? { _id: dentistRecord.id, firstName: dentistRecord.firstName, lastName: dentistRecord.lastName }
             : undefined,
         },
       });

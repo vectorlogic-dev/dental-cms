@@ -39,6 +39,7 @@ If you need to generate a default admin locally, see “Setup for IT”.
 ## Reports & Exports
 
 - **List pages** (Patients, Appointments, Treatments, Users) support sorting and search.
+- **Clickable rows**: Click any row in the list pages to view/edit details (keyboard accessible).
 - **Export** data to CSV or JSON from the Admin Reports tool.
 
 ## Troubleshooting
@@ -86,11 +87,24 @@ Default admin (local):
 docker-compose up --build
 ```
 
+### Desktop Packaging (Planned)
+
+A desktop application version is planned using Electron, which will package the entire application (backend + frontend + database) into a single installer for Windows and macOS. This will eliminate the need for manual Node.js setup and make deployment easier for clinics.
+
+**Status**: Planning phase - See `docs/packaging-plan.md` for detailed implementation plan.
+
+Key features of the desktop version:
+- Single installer package
+- Auto-start backend server
+- Local SQLite database stored in app data directory
+- No external dependencies required
+
 ## Tech Stack
 
-- **Backend**: Node.js, Express, TypeScript, MongoDB (Mongoose)
+- **Backend**: Node.js, Express, TypeScript, Prisma, SQLite
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS
+- **Desktop (Planned)**: Electron, electron-builder
 
 ## Support
 
-Contact your clinic’s IT administrator for assistance.
+Contact your clinic's IT administrator for assistance.

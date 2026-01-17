@@ -19,7 +19,7 @@ router.get('/', getUsers);
 
 router.get(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid user ID is required')],
   validateRequest,
   getUser
 );
@@ -27,7 +27,7 @@ router.get(
 router.put(
   '/:id',
   [
-    param('id').isMongoId(),
+    param('id').isString().notEmpty().withMessage('Valid user ID is required'),
     body('email').optional().isEmail().normalizeEmail(),
     body('firstName').optional().trim().notEmpty(),
     body('lastName').optional().trim().notEmpty(),
@@ -40,7 +40,7 @@ router.put(
 
 router.delete(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid user ID is required')],
   validateRequest,
   deleteUser
 );

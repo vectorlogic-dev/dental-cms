@@ -19,7 +19,7 @@ router.get('/', getTreatments);
 
 router.get(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid treatment ID is required')],
   validateRequest,
   getTreatment
 );
@@ -27,14 +27,14 @@ router.get(
 router.post(
   '/',
   [
-    body('patient').isMongoId(),
-    body('dentist').isMongoId(),
-    body('treatmentDate').optional().isISO8601().toDate(),
-    body('treatmentType').notEmpty(),
-    body('procedure').notEmpty(),
-    body('cost').isFloat({ min: 0 }),
-    body('paid').optional().isFloat({ min: 0 }),
-    body('status').optional().isIn(['pending', 'in-progress', 'completed', 'cancelled']),
+    body('patient').isString().notEmpty().withMessage('Patient ID is required'),
+    body('dentist').isString().notEmpty().withMessage('Dentist ID is required'),
+    body('treatmentDate').optional().isISO8601().toDate().withMessage('Valid treatment date is required'),
+    body('treatmentType').notEmpty().withMessage('Treatment type is required'),
+    body('procedure').notEmpty().withMessage('Procedure is required'),
+    body('cost').isFloat({ min: 0 }).withMessage('Cost must be a non-negative number'),
+    body('paid').optional().isFloat({ min: 0 }).withMessage('Paid amount must be a non-negative number'),
+    body('status').optional().isIn(['pending', 'in-progress', 'completed', 'cancelled']).withMessage('Invalid status'),
   ],
   validateRequest,
   createTreatment
@@ -43,10 +43,13 @@ router.post(
 router.put(
   '/:id',
   [
-    param('id').isMongoId(),
-    body('cost').optional().isFloat({ min: 0 }),
-    body('paid').optional().isFloat({ min: 0 }),
-    body('status').optional().isIn(['pending', 'in-progress', 'completed', 'cancelled']),
+    param('id').isString().notEmpty().withMessage('Valid treatment ID is required'),
+    body('patient').optional().isString().notEmpty().withMessage('Patient ID must be a non-empty string'),
+    body('dentist').optional().isString().notEmpty().withMessage('Dentist ID must be a non-empty string'),
+    body('treatmentDate').optional().isISO8601().toDate().withMessage('Valid treatment date is required'),
+    body('cost').optional().isFloat({ min: 0 }).withMessage('Cost must be a non-negative number'),
+    body('paid').optional().isFloat({ min: 0 }).withMessage('Paid amount must be a non-negative number'),
+    body('status').optional().isIn(['pending', 'in-progress', 'completed', 'cancelled']).withMessage('Invalid status'),
   ],
   validateRequest,
   updateTreatment
@@ -54,7 +57,7 @@ router.put(
 
 router.delete(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid treatment ID is required')],
   validateRequest,
   deleteTreatment
 );

@@ -41,16 +41,16 @@ export const getPatients = asyncHandler(
       isActive,
     } = req.query;
 
-    const isActiveValue =
-      typeof isActive === 'string' ? isActive === 'true' : isActive ?? true;
+    const isActiveValue = typeof isActive === 'string' ? isActive === 'true' : true;
     const query: Prisma.PatientWhereInput = { isActive: isActiveValue };
 
-    if (search) {
+    const searchValue = typeof search === 'string' ? search : undefined;
+    if (searchValue) {
       query.OR = [
-        { firstName: { contains: String(search), mode: 'insensitive' } },
-        { lastName: { contains: String(search), mode: 'insensitive' } },
-        { patientNumber: { contains: String(search), mode: 'insensitive' } },
-        { phone: { contains: String(search), mode: 'insensitive' } },
+        { firstName: { contains: searchValue } },
+        { lastName: { contains: searchValue } },
+        { patientNumber: { contains: searchValue } },
+        { phone: { contains: searchValue } },
       ];
     }
 

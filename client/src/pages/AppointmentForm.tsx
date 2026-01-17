@@ -304,10 +304,12 @@ export default function AppointmentForm() {
               <button
                 type="button"
                 aria-label="Open calendar"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-primary-600 hover:text-primary-700"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-600 hover:text-primary-700"
                 onClick={() => setShowCalendar((prev) => !prev)}
               >
-                🗓️
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
               </button>
               {showCalendar && (
                 <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-md p-2">

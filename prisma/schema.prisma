@@ -34,13 +34,13 @@ model Patient {
   gender           String
   email            String?
   phone            String
-  address          Json?
-  emergencyContact Json?
-  medicalHistory   Json?
-  allergies        Json?
-  insurance        Json?
+  address          String?
+  emergencyContact String?
+  medicalHistory   String?
+  allergies        String?
+  insurance        String?
   notes            String?
-  dentalChart      Json?
+  dentalChart      String?
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -58,7 +58,7 @@ model Appointment {
   type            String
   status          String   @default("scheduled")
   notes           String?
-  reminders       Json?
+  reminders       String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -75,7 +75,7 @@ model Treatment {
   id            String   @id @default(cuid())
   treatmentDate DateTime @default(now())
   treatmentType String
-  toothNumbers  Json?
+  toothNumbers  String?
   diagnosis     String?
   procedure     String
   description   String?
@@ -83,7 +83,7 @@ model Treatment {
   paid          Float    @default(0)
   status        String   @default("pending")
   notes         String?
-  attachments   Json?
+  attachments   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

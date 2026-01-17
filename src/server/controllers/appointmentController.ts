@@ -174,47 +174,81 @@ export const getAppointment = asyncHandler(
 // @access  Private
 export const createAppointment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const { patient, dentist, ...rest } = req.body;
-    const appointment = await prisma.appointment.create({
-      data: {
-        ...rest,
-        patientId: patient,
-        dentistId: dentist,
-        createdById: req.user?.id ?? '',
-      },
+    const { patient, dentist, ...payload } = req.body;
+    
+    // Validate patient exists
+    const patientExists = await prisma.patient.findUnique({
+      where: { id: patient },
     });
-
-    const populatedAppointment = await prisma.appointment.findUnique({
-      where: { id: appointment.id },
-      include: {
-        patient: { select: { id: true, firstName: true, lastName: true, phone: true } },
-        dentist: { select: { id: true, firstName: true, lastName: true } },
-      },
-    });
-
-    if (!populatedAppointment) {
-      res.status(404).json({ message: 'Appointment not found' });
+    if (!patientExists) {
+      res.status(400).json({ message: 'Invalid patient ID' });
       return;
     }
-
-    const {
-      id,
-      patient,
-      dentist,
-      patientId: _patientId,
-      dentistId: _dentistId,
-      createdById: _createdById,
-      ...rest
-    } = populatedAppointment;
-    res.status(201).json({
-      success: true,
-      data: {
-        _id: id,
-        ...rest,
-        patient: patient ? { _id: patient.id, firstName: patient.firstName, lastName: patient.lastName, phone: patient.phone } : undefined,
-        dentist: dentist ? { _id: dentist.id, firstName: dentist.firstName, lastName: dentist.lastName } : undefined,
-      },
+    
+    // Validate dentist exists
+    const dentistExists = await prisma.user.findUnique({
+      where: { id: dentist },
     });
+    if (!dentistExists || dentistExists.role !== 'dentist') {
+      res.status(400).json({ message: 'Invalid dentist ID or user is not a dentist' });
+      return;
+    }
+    
+    try {
+      const appointment = await prisma.appointment.create({
+        data: {
+          ...payload,
+          patientId: patient,
+          dentistId: dentist,
+          createdById: req.user?.id ?? '',
+        },
+      });
+
+      const populatedAppointment = await prisma.appointment.findUnique({
+        where: { id: appointment.id },
+        include: {
+          patient: { select: { id: true, firstName: true, lastName: true, phone: true } },
+          dentist: { select: { id: true, firstName: true, lastName: true } },
+        },
+      });
+
+      if (!populatedAppointment) {
+        res.status(404).json({ message: 'Appointment not found' });
+        return;
+      }
+
+      const {
+        id,
+        patient: patientRecord,
+        dentist: dentistRecord,
+        patientId: _patientId,
+        dentistId: _dentistId,
+        createdById: _createdById,
+        ...appointmentData
+      } = populatedAppointment;
+      res.status(201).json({
+        success: true,
+        data: {
+          _id: id,
+          ...appointmentData,
+          patient: patientRecord
+            ? { _id: patientRecord.id, firstName: patientRecord.firstName, lastName: patientRecord.lastName, phone: patientRecord.phone }
+            : undefined,
+          dentist: dentistRecord
+            ? { _id: dentistRecord.id, firstName: dentistRecord.firstName, lastName: dentistRecord.lastName }
+            : undefined,
+        },
+      });
+    } catch (error: unknown) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        res.status(400).json({ message: 'Invalid patient or dentist ID' });
+        return;
+      }
+      throw error;
+    }
   }
 );
 
@@ -223,12 +257,12 @@ export const createAppointment = asyncHandler(
 // @access  Private
 export const updateAppointment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const { patient, dentist, ...rest } = req.body;
+    const { patient, dentist, ...payload } = req.body;
     try {
       const appointment = await prisma.appointment.update({
         where: { id: req.params.id },
         data: {
-          ...rest,
+          ...payload,
           ...(patient ? { patientId: patient } : {}),
           ...(dentist ? { dentistId: dentist } : {}),
         },
@@ -240,20 +274,24 @@ export const updateAppointment = asyncHandler(
 
       const {
         id,
-        patient,
-        dentist,
+        patient: patientRecord,
+        dentist: dentistRecord,
         patientId: _patientId,
         dentistId: _dentistId,
         createdById: _createdById,
-        ...rest
+        ...appointmentData
       } = appointment;
       res.json({
         success: true,
         data: {
           _id: id,
-          ...rest,
-          patient: patient ? { _id: patient.id, firstName: patient.firstName, lastName: patient.lastName, phone: patient.phone } : undefined,
-          dentist: dentist ? { _id: dentist.id, firstName: dentist.firstName, lastName: dentist.lastName } : undefined,
+          ...appointmentData,
+          patient: patientRecord
+            ? { _id: patientRecord.id, firstName: patientRecord.firstName, lastName: patientRecord.lastName, phone: patientRecord.phone }
+            : undefined,
+          dentist: dentistRecord
+            ? { _id: dentistRecord.id, firstName: dentistRecord.firstName, lastName: dentistRecord.lastName }
+            : undefined,
         },
       });
     } catch (error: unknown) {

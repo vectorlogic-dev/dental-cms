@@ -13,7 +13,8 @@ export const getUsers = asyncHandler(
     const { page = 1, limit = 20, role, isActive } = req.query;
 
     const query: Prisma.UserWhereInput = {};
-    if (role) query.role = role;
+    const roleValue = typeof role === 'string' ? role : undefined;
+    if (roleValue) query.role = roleValue;
     if (isActive !== undefined) query.isActive = isActive === 'true';
 
     const users = await prisma.user.findMany({

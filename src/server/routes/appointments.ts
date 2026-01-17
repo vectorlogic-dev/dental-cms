@@ -19,7 +19,7 @@ router.get('/', getAppointments);
 
 router.get(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid appointment ID is required')],
   validateRequest,
   getAppointment
 );
@@ -27,12 +27,12 @@ router.get(
 router.post(
   '/',
   [
-    body('patient').isMongoId(),
-    body('dentist').isMongoId(),
-    body('appointmentDate').isISO8601().toDate(),
-    body('duration').optional().isInt({ min: 1 }),
-    body('type').isIn(['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up']),
-    body('status').optional().isIn(['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show']),
+    body('patient').isString().notEmpty().withMessage('Patient ID is required'),
+    body('dentist').isString().notEmpty().withMessage('Dentist ID is required'),
+    body('appointmentDate').isISO8601().toDate().withMessage('Valid appointment date is required'),
+    body('duration').optional().isInt({ min: 1 }).withMessage('Duration must be a positive integer'),
+    body('type').isIn(['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up']).withMessage('Invalid appointment type'),
+    body('status').optional().isIn(['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show']).withMessage('Invalid status'),
   ],
   validateRequest,
   createAppointment
@@ -41,10 +41,13 @@ router.post(
 router.put(
   '/:id',
   [
-    param('id').isMongoId(),
-    body('appointmentDate').optional().isISO8601().toDate(),
-    body('type').optional().isIn(['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up']),
-    body('status').optional().isIn(['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show']),
+    param('id').isString().notEmpty().withMessage('Valid appointment ID is required'),
+    body('patient').optional().isString().notEmpty().withMessage('Patient ID must be a non-empty string'),
+    body('dentist').optional().isString().notEmpty().withMessage('Dentist ID must be a non-empty string'),
+    body('appointmentDate').optional().isISO8601().toDate().withMessage('Valid appointment date is required'),
+    body('duration').optional().isInt({ min: 1 }).withMessage('Duration must be a positive integer'),
+    body('type').optional().isIn(['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up']).withMessage('Invalid appointment type'),
+    body('status').optional().isIn(['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show']).withMessage('Invalid status'),
   ],
   validateRequest,
   updateAppointment
@@ -52,7 +55,7 @@ router.put(
 
 router.delete(
   '/:id',
-  [param('id').isMongoId()],
+  [param('id').isString().notEmpty().withMessage('Valid appointment ID is required')],
   validateRequest,
   deleteAppointment
 );

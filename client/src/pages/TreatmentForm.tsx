@@ -84,6 +84,28 @@ export default function TreatmentForm() {
     { enabled: !!formData.patient }
   );
 
+  // Fetch selected appointment details when appointment is selected
+  const { data: selectedAppointment } = useQuery<Appointment>(
+    ['appointment', formData.appointment],
+    async () => {
+      const response = await api.get<ApiItemResponse<Appointment>>(`/appointments/${formData.appointment}`);
+      return response.data.data;
+    },
+    { enabled: !!formData.appointment && !isEdit }
+  );
+
+  // Auto-fill treatment date when appointment is selected (only for new treatments)
+  useEffect(() => {
+    if (selectedAppointment && !isEdit) {
+      const appointmentDate = new Date(selectedAppointment.appointmentDate);
+      const dateString = appointmentDate.toISOString().split('T')[0];
+      setFormData((prev) => ({
+        ...prev,
+        treatmentDate: dateString,
+      }));
+    }
+  }, [selectedAppointment, isEdit]);
+
   // Fetch treatment data if editing
   const { data: treatment, isLoading: isLoadingTreatment } = useQuery<TreatmentDetails>(
     ['treatment', id],

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { ApiListResponse, UserSummary } from '../types/api';
 
@@ -10,6 +10,7 @@ type SortOrder = 'asc' | 'desc';
 export default function Users() {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery<UserSummary[]>('users', async () => {
     const response = await api.get<ApiListResponse<UserSummary>>('/users');
@@ -97,7 +98,7 @@ export default function Users() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Users</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Users</h1>
         <Link to="/users/new" className="btn btn-primary">
           Add User
         </Link>
@@ -110,72 +111,67 @@ export default function Users() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200">
+                <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th 
-                    className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 select-none"
+                    className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 select-none"
                     onClick={() => handleSort('firstName')}
                   >
                     First Name <SortIcon field="firstName" />
                   </th>
                   <th 
-                    className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 select-none"
+                    className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 select-none"
                     onClick={() => handleSort('lastName')}
                   >
                     Last Name <SortIcon field="lastName" />
                   </th>
                   <th 
-                    className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 select-none"
+                    className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 select-none"
                     onClick={() => handleSort('email')}
                   >
                     Email <SortIcon field="email" />
                   </th>
                   <th 
-                    className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 select-none"
+                    className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 select-none"
                     onClick={() => handleSort('role')}
                   >
                     Role <SortIcon field="role" />
                   </th>
                   <th 
-                    className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 select-none"
+                    className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 select-none"
                     onClick={() => handleSort('status')}
                   >
                     Status <SortIcon field="status" />
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedUsers && sortedUsers.length > 0 ? (
                   sortedUsers.map((user) => (
-                  <tr key={user._id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4">{user.firstName}</td>
-                    <td className="py-3 px-4">{user.lastName}</td>
-                    <td className="py-3 px-4">{user.email}</td>
-                    <td className="py-3 px-4 capitalize">{user.role}</td>
+                  <tr 
+                    key={user._id} 
+                    className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                    onClick={() => navigate(`/users/${user._id}/edit`)}
+                  >
+                    <td className="py-3 px-4 dark:text-gray-200">{user.firstName}</td>
+                    <td className="py-3 px-4 dark:text-gray-200">{user.lastName}</td>
+                    <td className="py-3 px-4 dark:text-gray-200">{user.email}</td>
+                    <td className="py-3 px-4 capitalize dark:text-gray-200">{user.role}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           user.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         }`}
                       >
                         {user.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      <Link
-                        to={`/users/${user._id}/edit`}
-                        className="text-primary-600 hover:text-primary-700 font-medium"
-                      >
-                        Edit
-                      </Link>
-                    </td>
                   </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-500">
+                    <td colSpan={5} className="py-8 text-center text-gray-500 dark:text-gray-400">
                       No users found
                     </td>
                   </tr>

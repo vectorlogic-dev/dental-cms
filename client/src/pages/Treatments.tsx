@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { format } from 'date-fns';
 import { ApiListResponse, PatientSummary, Treatment, UserSummary } from '../types/api';
@@ -11,6 +11,7 @@ type SortOrder = 'asc' | 'desc';
 export default function Treatments() {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery<Treatment[]>('treatments', async () => {
     const response = await api.get<ApiListResponse<Treatment>>('/treatments', { params: { limit: 1000 } });
@@ -153,13 +154,16 @@ export default function Treatments() {
                   >
                     Status <SortIcon field="status" />
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedTreatments.length > 0 ? (
                   sortedTreatments.map((treatment) => (
-                    <tr key={treatment._id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr 
+                      key={treatment._id} 
+                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate(`/treatments/${treatment._id}/edit`)}
+                    >
                       <td className="py-3 px-4">
                         {format(new Date(treatment.treatmentDate), 'MM/dd/yyyy')}
                       </td>
@@ -181,19 +185,11 @@ export default function Treatments() {
                           {treatment.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <Link
-                          to={`/treatments/${treatment._id}/edit`}
-                          className="text-primary-600 hover:text-primary-700 font-medium"
-                        >
-                          Edit
-                        </Link>
-                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-500">
+                    <td colSpan={5} className="py-8 text-center text-gray-500">
                       No treatments found
                     </td>
                   </tr>

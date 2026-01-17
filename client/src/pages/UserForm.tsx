@@ -124,11 +124,11 @@ export default function UserForm() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">
         {isEdit ? 'Edit User' : 'Add New User'}
       </h1>
 
-      <form onSubmit={handleSubmit} className="card space-y-6">
+      <form onSubmit={handleSubmit} className="card space-y-6" autoComplete="off">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="label">First Name *</label>
@@ -137,6 +137,7 @@ export default function UserForm() {
               value={formData.firstName}
               onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
               className="input"
+              autoComplete="off"
               required
             />
           </div>
@@ -148,6 +149,7 @@ export default function UserForm() {
               value={formData.lastName}
               onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
               className="input"
+              autoComplete="off"
               required
             />
           </div>
@@ -159,6 +161,7 @@ export default function UserForm() {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="input"
+              autoComplete="off"
               required
             />
           </div>
@@ -172,6 +175,7 @@ export default function UserForm() {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="input"
+              autoComplete={isEdit ? "new-password" : "new-password"}
               required={!isEdit}
               minLength={6}
             />

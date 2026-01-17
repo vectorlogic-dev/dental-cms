@@ -47,3 +47,10 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+prisma/data/*.db
