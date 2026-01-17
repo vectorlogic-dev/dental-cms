@@ -1,30 +1,22 @@
-# Implementation Plan: UX Cleanup + Packaging
+# Implementation Plan: Omnibox UX Fixes
 
 ## Scope
-- Remove edit action buttons where rows/cards are already clickable.
-- Provide an initial plan for packaging the app as a desktop installer for easier installation/testing.
+- Provide a clear way to exit/close the search omnibox.
+- Include dentists in omnibox search results.
 
 ## Plan
-1) Remove redundant edit buttons
-   - Identify pages where list entries are clickable (staff, appointments, treatments).
-   - Remove edit action buttons from those pages.
-   - Ensure remaining actions (delete/status) are still accessible.
+1) Reproduce omnibox behavior
+   - Confirm how the omnibox opens and current dismissal paths (blur, escape, click outside).
+   - Identify the component and state handling.
 
-2) Validate navigation UX
-   - Verify clickable rows still navigate to the edit/detail views.
-   - Ensure keyboard focus styles and hover affordances remain clear.
+2) Add explicit exit affordances
+   - Add close button (X) and ensure Escape key closes.
+   - Ensure click outside/blur closes without losing app focus.
 
-3) Packaging plan (initial)
-   - Choose desktop wrapper: Electron + electron-builder.
-   - Bundle backend server + frontend build inside the app.
-   - Use SQLite database file stored in app data directory.
-   - Configure app to start backend on launch and open UI window.
-   - Produce installers for Windows and macOS.
+3) Extend search sources
+   - Add dentists to search index/query.
+   - Ensure result rendering differentiates entity types.
 
-4) Documentation
-   - Update `README.md` with packaging overview and local testing steps.
-
-## Verification
-- No edit action buttons remain where rows are clickable.
-- Clickable rows still work and remaining actions are accessible.
-- Packaging plan is documented for next implementation phase.
+4) Verification
+   - Omnibox closes via X button, Escape, and click outside.
+   - Dentist results appear and navigate correctly.

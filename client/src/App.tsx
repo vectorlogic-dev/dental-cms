@@ -13,7 +13,6 @@ import TreatmentForm from './pages/TreatmentForm';
 import Users from './pages/Users';
 import UserForm from './pages/UserForm';
 import Calendar from './pages/Calendar';
-import AdminReports from './pages/AdminReports';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -49,7 +48,6 @@ function App() {
         <Route path="users" element={<Users />} />
         <Route path="users/new" element={<UserForm />} />
         <Route path="users/:id/edit" element={<UserForm />} />
-        <Route path="admin/reports" element={<AdminReports />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>

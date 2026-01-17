@@ -3,7 +3,8 @@ import { useQuery } from 'react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { format } from 'date-fns';
-import { ApiListResponse, PatientSummary, Treatment, UserSummary } from '../types/api';
+import { ApiListResponse, Treatment } from '../types/api';
+import { formatPersonName } from '../utils/formatting';
 
 type SortField = 'treatmentDate' | 'patient' | 'procedure' | 'cost' | 'status' | null;
 type SortOrder = 'asc' | 'desc';
@@ -27,16 +28,11 @@ export default function Treatments() {
     }
   };
 
-  const formatPersonName = (person?: PatientSummary | UserSummary | string): string => {
-    if (!person || typeof person === 'string') return '';
-    return `${person.firstName || ''} ${person.lastName || ''}`.trim();
-  };
-
   const sortedTreatments = useMemo(() => {
     if (!data) return [];
     
     const sorted = [...data];
-    const formatPersonNameForSort = (person?: PatientSummary | UserSummary | string): string =>
+    const formatPersonNameForSort = (person?: Treatment['patient']): string =>
       formatPersonName(person).toLowerCase();
     
     if (sortField) {

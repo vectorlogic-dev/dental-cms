@@ -49,8 +49,12 @@ export interface Treatment {
   _id: string;
   treatmentDate: string;
   procedure?: string;
+  treatmentType?: string;
+  diagnosis?: string;
+  description?: string;
   status?: string;
   cost?: number;
+  paid?: number;
   notes?: string;
   patient?: PatientSummary | string;
   dentist?: UserSummary | string;

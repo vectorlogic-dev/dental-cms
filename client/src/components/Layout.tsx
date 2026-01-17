@@ -1,20 +1,16 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
+import { Outlet, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import PasswordModal from './PasswordModal';
+import QuickSearch from './QuickSearch';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
-  const navigate = useNavigate();
-  const sidebarRef = useRef<HTMLElement>(null);
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark';
   });
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
   };
 
   useEffect(() => {
@@ -28,35 +24,10 @@ export default function Layout() {
     }
   }, [isDark]);
 
-  useEffect(() => {
-    const sidebar = sidebarRef.current;
-    if (!sidebar) return;
-
-    const handleContextMenu = (e: MouseEvent) => {
-      if (e.ctrlKey && e.shiftKey) {
-        e.preventDefault();
-        setShowPasswordModal(true);
-      }
-    };
-
-    sidebar.addEventListener('contextmenu', handleContextMenu);
-    return () => {
-      sidebar.removeEventListener('contextmenu', handleContextMenu);
-    };
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Password Modal */}
-      <PasswordModal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        onSuccess={() => navigate('/admin/reports')}
-        correctPassword="admin"
-      />
-
       {/* Sidebar */}
-      <aside ref={sidebarRef} className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
+      <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-primary-600">Dental CMS</h1>
         </div>
@@ -109,7 +80,8 @@ export default function Layout() {
           <div className="flex items-center justify-between px-8 py-4">
             <h2 className="text-xl font-semibold text-gray-800">Welcome, {user?.firstName}</h2>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600 capitalize">{user?.role}</span>
+              <QuickSearch />
+              <span className="text-sm text-gray-600 dark:text-gray-300 capitalize">{user?.role}</span>
             <button
               onClick={() => setIsDark((prev) => !prev)}
               className="btn btn-secondary text-sm w-9 h-9 flex items-center justify-center"

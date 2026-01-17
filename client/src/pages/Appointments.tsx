@@ -3,7 +3,8 @@ import { useQuery } from 'react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { format } from 'date-fns';
-import { Appointment, ApiListResponse, PatientSummary, UserSummary } from '../types/api';
+import { Appointment, ApiListResponse } from '../types/api';
+import { formatPersonName } from '../utils/formatting';
 
 type SortField = 'appointmentDate' | 'patient' | 'dentist' | 'type' | 'status' | null;
 type SortOrder = 'asc' | 'desc';
@@ -29,16 +30,11 @@ export default function Appointments() {
     }
   };
 
-  const formatPersonName = (person?: PatientSummary | UserSummary | string): string => {
-    if (!person || typeof person === 'string') return '';
-    return `${person.firstName || ''} ${person.lastName || ''}`.trim();
-  };
-
   const sortedAppointments = useMemo(() => {
     if (!data) return [];
     
     const sorted = [...data];
-    const formatPersonNameForSort = (person?: PatientSummary | UserSummary | string): string =>
+    const formatPersonNameForSort = (person?: Appointment['patient'] | Appointment['dentist']): string =>
       formatPersonName(person).toLowerCase();
     
     if (sortField) {

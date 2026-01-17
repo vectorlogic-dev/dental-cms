@@ -18,6 +18,7 @@ import {
 import api from '../utils/api';
 import { Link } from 'react-router-dom';
 import { ApiListResponse, Appointment } from '../types/api';
+import { formatPersonName } from '../utils/formatting';
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -55,10 +56,6 @@ export default function Calendar() {
     }));
   };
 
-  const formatPatientName = (patient?: Appointment['patient']): string => {
-    if (!patient || typeof patient === 'string') return '';
-    return `${patient.firstName || ''} ${patient.lastName || ''}`.trim();
-  };
 
   const renderHeader = () => (
     <div className="flex items-center justify-between mb-6">
@@ -198,7 +195,7 @@ export default function Calendar() {
                     className={`block px-2 py-1 text-[10px] sm:text-xs rounded-md border truncate transition-all hover:shadow-md ${getStatusStyles(apt.status || 'scheduled')}`}
                   >
                     <span className="font-bold mr-1">{format(new Date(apt.appointmentDate), 'HH:mm')}</span>
-                    {formatPatientName(apt.patient)}
+                    {formatPersonName(apt.patient)}
                   </Link>
                 ))}
                 {dayAppointments.length > maxItems && (

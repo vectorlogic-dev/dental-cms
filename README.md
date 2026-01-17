@@ -17,16 +17,15 @@ Dental CMS is a full-stack system for managing patient records, appointments, tr
 - **Treatments**: Record procedures, costs, payments, and outcomes.
 - **Calendar**: Visual view of upcoming appointments.
 - **Users (Admin only)**: Add and manage staff access and roles.
-- **Reports**: Export lists to CSV/JSON and print summaries.
 
 ### Roles & Access
 
-| Role | Patients | Appointments | Treatments | Users | Reports |
-|------|----------|--------------|------------|-------|---------|
-| Admin | Full | Full | Full | Full | Full |
-| Dentist | Full | Full | Full | No | No |
-| Assistant | Full | Full | Full | No | No |
-| Receptionist | Full | Full | No | No | No |
+| Role | Patients | Appointments | Treatments | Users |
+|------|----------|--------------|------------|-------|
+| Admin | Full | Full | Full | Full |
+| Dentist | Full | Full | Full | No |
+| Assistant | Full | Full | Full | No |
+| Receptionist | Full | Full | No | No |
 
 ## Getting Started (Admin)
 
@@ -36,11 +35,10 @@ Dental CMS is a full-stack system for managing patient records, appointments, tr
 
 If you need to generate a default admin locally, see “Setup for IT”.
 
-## Reports & Exports
+## List Pages & Navigation
 
 - **List pages** (Patients, Appointments, Treatments, Users) support sorting and search.
 - **Clickable rows**: Click any row in the list pages to view/edit details (keyboard accessible).
-- **Export** data to CSV or JSON from the Admin Reports tool.
 
 ## Troubleshooting
 

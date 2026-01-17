@@ -4,7 +4,6 @@ import patientRoutes from './patients';
 import appointmentRoutes from './appointments';
 import treatmentRoutes from './treatments';
 import userRoutes from './users';
-import adminRoutes from './admin';
 
 const router = Router();
 
@@ -17,6 +16,5 @@ router.use('/patients', patientRoutes);
 router.use('/appointments', appointmentRoutes);
 router.use('/treatments', treatmentRoutes);
 router.use('/users', userRoutes);
-router.use('/admin', adminRoutes);
 
 export default router;
