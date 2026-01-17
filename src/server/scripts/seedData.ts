@@ -214,7 +214,7 @@ const seedData = async () => {
             dentistId: t.dentist.id,
             treatmentDate: t.treatmentDate,
             treatmentType: t.treatmentType,
-            toothNumbers: t.toothNumbers,
+            toothNumbers: Array.isArray(t.toothNumbers) ? t.toothNumbers.join(', ') : t.toothNumbers,
             diagnosis: t.diagnosis,
             procedure: t.procedure,
             description: t.description,

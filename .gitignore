@@ -54,3 +54,14 @@ coverage/
 *.sqlite
 *.sqlite3
 prisma/data/*.db
+
+# Electron build outputs (except releases folder)
+dist-electron/
+*.app
+# Allow installers in releases folder
+!releases/*.exe
+!releases/*.dmg
+!releases/*.AppImage
+*.deb
+*.rpm
+*.snap

@@ -1,7 +1,7 @@
 # Desktop Packaging Plan
 
 ## Overview
-This document outlines the plan for packaging the Dental CMS as a desktop application using Electron, making it easier to install and test without requiring manual setup of Node.js, databases, and server configurations.
+This plan targets a "double-click to install, double-click to run" experience. End users should not need Node.js, database setup, or command-line steps.
 
 ## Technology Stack
 
@@ -10,14 +10,15 @@ This document outlines the plan for packaging the Dental CMS as a desktop applic
 - **electron-builder**: Package and build installers for Windows, macOS, and Linux
 
 ### Architecture
-1. **Backend Server**: Bundle Node.js runtime + Express server as part of the app
-2. **Frontend**: Pre-built React app (Vite build) served from Electron
-3. **Database**: SQLite file stored in app data directory
-4. **Auto-start**: Backend server starts automatically when app launches
+1. **Backend Server**: Bundle Node.js runtime + Express server inside the app
+2. **Frontend**: Pre-built React app served by the backend (no external web server)
+3. **Database**: SQLite file stored in the app data directory
+4. **Auto-start**: Backend starts automatically on app launch
+5. **Zero setup**: First run bootstraps database and optional admin user
 
 ## Implementation Steps
 
-### Phase 1: Electron Setup
+### Phase 1: Electron Setup (fast path)
 1. Install Electron and electron-builder dependencies
    ```bash
    npm install --save-dev electron electron-builder concurrently
@@ -25,11 +26,11 @@ This document outlines the plan for packaging the Dental CMS as a desktop applic
 
 2. Create Electron main process file (`electron/main.js`)
    - Start backend server on launch (background process)
-   - Open Electron window pointing to `http://localhost:5000`
+   - Open Electron window pointing to `http://127.0.0.1:<port>`
    - Handle window lifecycle (close, minimize)
    - Exit backend process when app quits
 
-3. Create Electron preload script for security
+3. Create Electron preload script for security (minimal, no Node.js in renderer)
    - Expose necessary APIs if needed
    - Ensure secure context isolation
 
@@ -41,31 +42,34 @@ This document outlines the plan for packaging the Dental CMS as a desktop applic
    - Set up build paths and resources
 
 2. **Build Process**
-   - Backend: Bundle compiled TypeScript + dependencies
-   - Frontend: Use existing Vite build output
-   - Include SQLite database template or initialize on first run
+   - Backend: Build TypeScript to `dist/`
+   - Frontend: Vite build to `client/dist/`
+   - Backend serves `client/dist/` as static assets
+   - Initialize SQLite on first run (no pre-seeded DB required)
 
 3. **App Data Directory**
    - Use Electron `app.getPath('userData')` for database storage
    - Store `database.db` in: `%APPDATA%/dental-cms/` (Windows) or `~/Library/Application Support/dental-cms/` (macOS)
-   - Migrate DATABASE_URL to point to user data directory
+   - Set `DATABASE_URL` to that path at runtime
 
-### Phase 3: Installer Configuration
+### Phase 3: Installer Configuration (user friendly)
 
 1. **Windows (NSIS)**
    - Create installer with company info, app icon
    - Include shortcut creation
    - Add uninstaller
+   - Optional: Start app after install
 
 2. **macOS (.dmg)**
    - Create DMG with app bundle
    - Code signing (optional for distribution)
    - Gatekeeper compatibility
+   - Simple drag-to-Applications flow
 
 3. **Linux (AppImage/DEB)**
    - Optional: Create AppImage for universal Linux support
 
-### Phase 4: Auto-Start Server
+### Phase 4: Auto-Start Server (no port conflicts)
 
 1. **Backend Integration**
    - Modify server entry point to accept port from environment
@@ -74,16 +78,16 @@ This document outlines the plan for packaging the Dental CMS as a desktop applic
    - Handle server crashes gracefully
 
 2. **Startup Flow**
-   - Check if backend is running (health check)
-   - Wait for server to be ready before opening window
-   - Show loading screen while starting
+   - Pick an available port (or fixed port with fallback)
+   - Start backend, poll `/health` until ready
+   - Show a simple splash/loading screen during startup
 
-### Phase 5: Database Migration
+### Phase 5: Database Initialization
 
 1. **First Run Setup**
    - Check if database exists in user data directory
-   - If not, copy template database or run migrations
-   - Create default admin user if needed
+   - If not, run Prisma `db push` and create schema
+   - Prompt to create initial admin user (or auto-create with default password and force change)
 
 2. **Data Persistence**
    - All data stored locally in SQLite file
@@ -129,16 +133,16 @@ mac:
 ## Environment Variables in Electron
 
 - `DATABASE_URL`: Points to SQLite file in user data directory
-- `PORT`: Fixed port (e.g., 5000) for local server
+- `PORT`: Use dynamic port (preferred) or fixed port with fallback
 - `NODE_ENV`: Set to 'production'
-- `CORS_ORIGIN`: Set to `http://localhost:5000`
+- `CORS_ORIGIN`: Set to `http://127.0.0.1:<port>`
 
 ## Testing
 
 1. **Development Testing**
    - Run Electron app locally: `npm run electron:dev`
-   - Test server startup and shutdown
-   - Verify database operations in user data directory
+   - Verify first-run DB creation and admin onboarding
+   - Confirm app launches without any CLI steps
 
 2. **Installer Testing**
    - Build installer: `npm run build:desktop`
@@ -150,7 +154,7 @@ mac:
 
 1. **Node.js Runtime**: Electron includes its own Node.js, so no external installation needed
 2. **SQLite**: Works well with Electron, no additional dependencies
-3. **Port Conflicts**: Use fixed port or detect available port automatically
+3. **Port Conflicts**: Prefer dynamic port allocation with health check
 4. **Auto-updates**: Future enhancement using `electron-updater`
 5. **Security**: Ensure backend API remains local-only (127.0.0.1)
 

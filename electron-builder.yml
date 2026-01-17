@@ -1,0 +1,58 @@
+appId: com.dentalcms.app
+productName: Dental CMS
+copyright: Copyright © 2024
+directories:
+  buildResources: electron/build
+  output: dist-electron
+
+files:
+  - dist/**/*
+  - client/dist/**/*
+  - package.json
+  - node_modules/**/*
+  - electron/**/*
+  - prisma/**/*
+  - "!prisma/data/**/*"
+  - "!**/*.map"
+  - "!**/test/**/*"
+  - "!**/tests/**/*"
+  - "!**/*.test.*"
+  - "!**/*.spec.*"
+
+extraMetadata:
+  main: electron/main.js
+
+# Ensure Prisma files are included
+extraResources:
+  - from: prisma/schema.prisma
+    to: prisma/schema.prisma
+
+win:
+  target: nsis
+  icon: electron/icons/icon.ico
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Dental CMS
+  installerIcon: electron/icons/icon.ico
+  uninstallerIcon: electron/icons/icon.ico
+
+mac:
+  target: dmg
+  icon: electron/icons/icon.icns
+  category: public.app-category.medical
+  hardenedRuntime: false
+  gatekeeperAssess: false
+
+dmg:
+  title: Dental CMS
+  icon: electron/icons/icon.icns
+
+linux:
+  target: AppImage
+  icon: electron/icons/icon.png
+  category: Medical

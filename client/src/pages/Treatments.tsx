@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { format } from 'date-fns';
 import { ApiListResponse, PatientSummary, Treatment, UserSummary } from '../types/api';
