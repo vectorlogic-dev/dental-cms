@@ -1,13 +1,16 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
+import PasswordModal from './PasswordModal';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const sidebarRef = useRef<HTMLElement>(null);
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark';
   });
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -25,10 +28,35 @@ export default function Layout() {
     }
   }, [isDark]);
 
+  useEffect(() => {
+    const sidebar = sidebarRef.current;
+    if (!sidebar) return;
+
+    const handleContextMenu = (e: MouseEvent) => {
+      if (e.ctrlKey && e.shiftKey) {
+        e.preventDefault();
+        setShowPasswordModal(true);
+      }
+    };
+
+    sidebar.addEventListener('contextmenu', handleContextMenu);
+    return () => {
+      sidebar.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Password Modal */}
+      <PasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        onSuccess={() => navigate('/admin/reports')}
+        correctPassword="admin"
+      />
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
+      <aside ref={sidebarRef} className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-primary-600">Dental CMS</h1>
         </div>

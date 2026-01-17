@@ -127,30 +127,28 @@ export default function PatientForm() {
     { enabled: isEdit }
   );
 
-  const toIsoDate = (value: string) => {
+  // Convert date to YYYY-MM-DD format for date input
+  const toDateInputFormat = (value: string | Date): string => {
     if (!value) return '';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-
-    const parts = value.split('/');
-    if (parts.length !== 3) return value;
-
-    const [month, day, year] = parts.map((part) => part.trim());
-    if (!month || !day || !year) return value;
-
-    const paddedMonth = month.padStart(2, '0');
-    const paddedDay = day.padStart(2, '0');
-    return `${year}-${paddedMonth}-${paddedDay}`;
+    
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return '';
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   };
 
-  const formatDobInput = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 8);
-    const month = digits.slice(0, 2);
-    const day = digits.slice(2, 4);
-    const year = digits.slice(4, 8);
-
-    if (digits.length <= 2) return month;
-    if (digits.length <= 4) return `${month}/${day}`;
-    return `${month}/${day}/${year}`;
+  // Convert date input value (YYYY-MM-DD) to ISO date string for API
+  const toIsoDate = (value: string): string => {
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return '';
+    // Convert to ISO date string with time at midnight UTC
+    // This ensures proper parsing on the backend
+    const date = new Date(value + 'T00:00:00.000Z');
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString();
   };
 
   // Populate form when patient data loads
@@ -160,7 +158,7 @@ export default function PatientForm() {
         firstName: patient.firstName || '',
         lastName: patient.lastName || '',
         dateOfBirth: patient.dateOfBirth
-          ? format(new Date(patient.dateOfBirth), 'MM/dd/yyyy')
+          ? toDateInputFormat(patient.dateOfBirth)
           : '',
         gender: patient.gender || 'male',
         email: patient.email || '',
@@ -314,18 +312,31 @@ export default function PatientForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-2 md:gap-4 md:items-center">
               <label className="label md:mb-0">Date of Birth *</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="\d{2}/\d{2}/\d{4}"
-                placeholder="MM/DD/YYYY"
-                value={formData.dateOfBirth}
-                onChange={(e) =>
-                  setFormData({ ...formData, dateOfBirth: formatDobInput(e.target.value) })
-                }
-                className="input"
-                required
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dateOfBirth: e.target.value })
+                  }
+                  className="input pr-10"
+                  max={new Date().toISOString().split('T')[0]}
+                  required
+                />
+                <svg
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-2 md:gap-4 md:items-center">

@@ -28,15 +28,35 @@ npm run dev
 
 ## ✨ Features
 
+### Core Features
 - **🦷 Interactive SVG Dental Chart**: Track procedures per tooth (Quadrants 1–4, Positions 1–8).
 - **📝 Clinical History**: Procedure logs with notes, dentist attribution, timestamps.
-- **👥 Patient Management**: Records, medical history, allergies, and contact details.
-- **📅 Appointment Scheduling**: Checkups, cleanings, treatments, consultations, and more.
-- **👤 Staff Management**: Role-based access (Admin, Dentist, Assistant, Receptionist).
-- **📉 Dashboard**: Daily overview, patient counts, pending treatments.
-- **🔐 Authentication**: JWT-based auth.
-- **📱 PWA Support**: Installable desktop/mobile experience.
-- **✨ UX Optimizations**: Standard date formatting (MM/DD/YYYY).
+- **👥 Patient Management**: Complete patient records with medical history, allergies, contact details, and dental chart integration.
+- **📅 Appointment Scheduling**: Comprehensive scheduling system for checkups, cleanings, treatments, consultations, and more.
+- **📊 Calendar View**: Visual calendar interface for managing appointments.
+- **💉 Treatment Management**: Track procedures, costs, payments, and treatment status.
+- **👤 Staff Management**: Role-based access control (Admin, Dentist, Assistant, Receptionist).
+- **📉 Dashboard**: Daily overview with patient counts, pending treatments, and appointment summaries.
+
+### Data Management
+- **📊 Excel-Style Column Sorting**: Click any column header to sort data (A-Z/Z-A) on Patients, Appointments, Treatments, and Users pages.
+- **🔍 Advanced Search**: Search patients by name, patient number, phone, or email.
+- **📄 Export & Print**: Export data to CSV or JSON, or print reports from the Admin Reports tool.
+- **📅 Date Picker**: User-friendly calendar date picker for date selection (birth dates, appointments, treatments).
+
+### Admin Features
+- **🔐 Hidden Admin Reports Tool**: Access MongoDB query interface via Ctrl+Shift+Right Click on sidebar menu (password: `admin`).
+  - Run custom database queries
+  - Create custom reports
+  - Export data (CSV, JSON)
+  - Print reports
+
+### Technical Features
+- **🔐 Authentication**: JWT-based authentication with secure token management.
+- **📱 PWA Support**: Installable desktop/mobile Progressive Web App experience.
+- **🌙 Dark Mode**: Toggle between light and dark themes.
+- **✨ Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices.
+- **🛡️ Security**: Input validation, role-based access control, password hashing with bcrypt.
 
 ## 📸 Screenshots
 
@@ -173,21 +193,22 @@ npm start
 dental-cms/
 ├── src/
 │   └── server/              # Backend code
-│       ├── config/          # Configuration files
-│       ├── controllers/     # Route controllers
-│       ├── middleware/      # Custom middleware
-│       ├── models/          # Mongoose models
-│       ├── routes/          # API routes
-│       ├── scripts/         # Utility scripts (admin creation)
-│       └── utils/           # Utility functions
+│       ├── config/          # Configuration files (database, etc.)
+│       ├── controllers/     # Route controllers (patients, appointments, etc.)
+│       ├── middleware/      # Custom middleware (auth, error handling)
+│       ├── models/          # Mongoose models (Patient, User, etc.)
+│       ├── routes/          # API routes (patients, appointments, admin, etc.)
+│       ├── scripts/         # Utility scripts (admin creation, seeding)
+│       └── utils/           # Utility functions (token generation, etc.)
 ├── client/                  # Frontend code
 │   ├── src/
-│   │   ├── components/      # Shared React components
-│   │   ├── features/        # Modular features (e.g., dental-chart)
-│   │   ├── pages/           # Page components
-│   │   ├── store/           # Zustand stores
-│   │   └── utils/           # Utility functions
-│   └── public/              # Static assets
+│   │   ├── components/      # Shared React components (Layout, DentalChart, etc.)
+│   │   ├── features/        # Modular features (dental-chart)
+│   │   ├── pages/           # Page components (Patients, Appointments, etc.)
+│   │   ├── store/           # Zustand stores (auth state management)
+│   │   └── utils/           # Utility functions (API client, helpers)
+│   └── public/              # Static assets (icons, images)
+├── docs/                    # Documentation and screenshots
 ├── .env                     # Environment variables (create this)
 └── package.json             # Root package.json
 ```
@@ -240,19 +261,58 @@ dental-cms/
 - `PUT /api/users/:id` - Update user (Admin only)
 - `DELETE /api/users/:id` - Deactivate user (Admin only)
 
-## 👥 User Roles
+### Admin (Admin only)
+- `POST /api/admin/query` - Execute MongoDB queries for custom reports
 
-- **Admin**: Full access including user management
-- **Dentist**: Patients, appointments, treatments
-- **Assistant**: Patients, appointments, treatments
-- **Receptionist**: Patients, appointments
+## 👥 User Roles & Permissions
+
+| Role | Patients | Appointments | Treatments | Users | Admin Reports |
+|------|----------|--------------|------------|-------|---------------|
+| **Admin** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
+| **Dentist** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ❌ No Access | ❌ No Access |
+| **Assistant** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ❌ No Access | ❌ No Access |
+| **Receptionist** | ✅ Full Access | ✅ Full Access | ❌ No Access | ❌ No Access | ❌ No Access |
+
+### Role Descriptions
+- **Admin**: Full system access including user management and admin reports
+- **Dentist**: Manage patients, appointments, and treatments
+- **Assistant**: Manage patients, appointments, and treatments
+- **Receptionist**: Manage patients and appointments only
 
 ## 🗄️ Database Schema
 
-- **Users**: Staff members with auth/role data
-- **Patients**: Patient records with medical info
-- **Appointments**: Scheduled appointments
-- **Treatments**: Procedures and billing
+- **Users**: Staff members with authentication and role data
+- **Patients**: Complete patient records with medical history, allergies, dental chart, and contact information
+- **Appointments**: Scheduled appointments with patient, dentist, date/time, type, and status
+- **Treatments**: Procedures with billing information, costs, payments, and treatment status
+
+## 🔧 User Interface Features
+
+### Sorting & Filtering
+- **Click-to-Sort**: Click any column header to sort data ascending/descending
+  - **Patients**: Sort by Patient #, First Name, Last Name, Phone, Email
+  - **Appointments**: Sort by Date & Time, Patient, Dentist, Type, Status
+  - **Treatments**: Sort by Date, Patient, Treatment, Cost, Status
+  - **Users**: Sort by First Name, Last Name, Email, Role, Status
+- **Search**: Real-time search across patient records
+- **Pagination**: Navigate through large datasets efficiently
+
+### Admin Reports Tool (Hidden Feature)
+Access the advanced reporting interface:
+1. Hold **Ctrl+Shift** and **Right-Click** on the sidebar menu
+2. Enter password: `admin`
+3. Features:
+   - Query MongoDB collections (Patients, Appointments, Treatments, Users)
+   - Write custom queries using MongoDB query syntax
+   - View results in a sortable table
+   - Export data as CSV or JSON
+   - Print formatted reports
+
+### Date Handling
+- **Date Picker**: Calendar widget for selecting dates (birth dates, appointments, treatment dates)
+- **Date Validation**: Prevents invalid dates and future birth dates
+- **Formatted Exports**: Dates in CSV exports show as YYYY-MM-DD (date only, no time)
+- **Display Format**: Dates displayed consistently throughout the application
 
 ## 🐛 Troubleshooting
 
@@ -275,7 +335,17 @@ dental-cms/
 ### Admin User Already Exists
 - Use existing credentials, or
 - Delete the user from MongoDB and rerun `create:admin`, or
-- Create a new user via UI (Admin → Users → Add User)
+- Create a new user via UI (Admin → Staff Management → Add User)
+
+### Sorting Not Working
+- Ensure you're clicking on the column headers (they should have hover effects)
+- Refresh the page if sorting seems unresponsive
+- Check browser console for any JavaScript errors
+
+### Admin Reports Access
+- Ensure you're holding **Ctrl+Shift** while right-clicking on the sidebar
+- Password is case-sensitive: `admin`
+- Only admin users can access the reports tool (backend validation)
 
 ## 🔒 Security
 

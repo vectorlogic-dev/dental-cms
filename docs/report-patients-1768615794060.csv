@@ -1,0 +1,2 @@
+_id,patientNumber,firstName,lastName,dateOfBirth,gender,phone,medicalHistory,allergies,createdBy,isActive,dentalChart,createdAt,updatedAt,__v
+"696aeebe72ea9dd103cfc940","PAT-2026-000001","John","Doe","1991-10-23T00:00:00.000Z","male","09765243611","[]","[]","696aeb542e422383cc86ab89","true","[]","2026-01-17T02:06:54.079Z","2026-01-17T02:06:54.079Z","0"

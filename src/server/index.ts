@@ -11,6 +11,7 @@ import patientRoutes from './routes/patients';
 import appointmentRoutes from './routes/appointments';
 import treatmentRoutes from './routes/treatments';
 import userRoutes from './routes/users';
+import adminRoutes from './routes/admin';
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/treatments', treatmentRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
