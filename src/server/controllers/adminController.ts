@@ -9,6 +9,8 @@ const ALLOWED_COLLECTIONS = ['patients', 'appointments', 'treatments', 'users'];
 // @desc    Execute database query
 // @route   POST /api/admin/query
 // @access  Private (Admin only)
+type SanitizedRecord = Record<string, unknown>;
+
 export const queryDatabase = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     // Check if user is admin
@@ -47,15 +49,15 @@ export const queryDatabase = asyncHandler(
       const executionTime = Date.now() - startTime;
 
       // Convert MongoDB ObjectIds to strings for JSON serialization
-      const sanitizedResults = results.map((doc: any) => {
-        const sanitized: any = {};
+      const sanitizedResults = results.map((doc: SanitizedRecord) => {
+        const sanitized: SanitizedRecord = {};
         for (const [key, value] of Object.entries(doc)) {
           if (value instanceof mongoose.Types.ObjectId) {
             sanitized[key] = value.toString();
           } else if (value instanceof Date) {
             sanitized[key] = value.toISOString();
           } else if (typeof value === 'object' && value !== null) {
-            sanitized[key] = JSON.parse(JSON.stringify(value));
+            sanitized[key] = JSON.parse(JSON.stringify(value)) as SanitizedRecord;
           } else {
             sanitized[key] = value;
           }
@@ -69,10 +71,10 @@ export const queryDatabase = asyncHandler(
         count: sanitizedResults.length,
         executionTime,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(400).json({
         message: 'Query execution failed',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }

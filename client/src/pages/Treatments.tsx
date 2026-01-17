@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { format } from 'date-fns';
+import { ApiListResponse, PatientSummary, Treatment, UserSummary } from '../types/api';
 
 type SortField = 'treatmentDate' | 'patient' | 'procedure' | 'cost' | 'status' | null;
 type SortOrder = 'asc' | 'desc';
@@ -11,8 +12,8 @@ export default function Treatments() {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
-  const { data, isLoading } = useQuery('treatments', async () => {
-    const response = await api.get('/treatments', { params: { limit: 1000 } });
+  const { data, isLoading } = useQuery<Treatment[]>('treatments', async () => {
+    const response = await api.get<ApiListResponse<Treatment>>('/treatments', { params: { limit: 1000 } });
     return response.data.data;
   });
 
@@ -25,33 +26,44 @@ export default function Treatments() {
     }
   };
 
+  const formatPersonName = (person?: PatientSummary | UserSummary | string): string => {
+    if (!person || typeof person === 'string') return '';
+    return `${person.firstName || ''} ${person.lastName || ''}`.trim();
+  };
+
   const sortedTreatments = useMemo(() => {
     if (!data) return [];
     
-    let sorted = [...data];
+    const sorted = [...data];
+    const formatPersonNameForSort = (person?: PatientSummary | UserSummary | string): string =>
+      formatPersonName(person).toLowerCase();
     
     if (sortField) {
-      sorted.sort((a: any, b: any) => {
-        let aValue: any;
-        let bValue: any;
+      sorted.sort((a, b) => {
+        let aValue = '';
+        let bValue = '';
         
         switch (sortField) {
           case 'treatmentDate':
-            aValue = new Date(a.treatmentDate).getTime();
-            bValue = new Date(b.treatmentDate).getTime();
-            return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+            {
+              const aTime = new Date(a.treatmentDate).getTime();
+              const bTime = new Date(b.treatmentDate).getTime();
+              return sortOrder === 'asc' ? aTime - bTime : bTime - aTime;
+            }
           case 'patient':
-            aValue = `${a.patient?.firstName || ''} ${a.patient?.lastName || ''}`.toLowerCase();
-            bValue = `${b.patient?.firstName || ''} ${b.patient?.lastName || ''}`.toLowerCase();
+            aValue = formatPersonNameForSort(a.patient);
+            bValue = formatPersonNameForSort(b.patient);
             break;
           case 'procedure':
             aValue = (a.procedure || '').toLowerCase();
             bValue = (b.procedure || '').toLowerCase();
             break;
           case 'cost':
-            aValue = parseFloat(a.cost || 0);
-            bValue = parseFloat(b.cost || 0);
-            return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+            {
+              const aCost = Number(a.cost || 0);
+              const bCost = Number(b.cost || 0);
+              return sortOrder === 'asc' ? aCost - bCost : bCost - aCost;
+            }
           case 'status':
             aValue = (a.status || '').toLowerCase();
             bValue = (b.status || '').toLowerCase();
@@ -60,7 +72,6 @@ export default function Treatments() {
             return 0;
         }
         
-        if (sortField === 'treatmentDate' || sortField === 'cost') return 0;
         const comparison = aValue.localeCompare(bValue);
         return sortOrder === 'asc' ? comparison : -comparison;
       });
@@ -147,13 +158,13 @@ export default function Treatments() {
               </thead>
               <tbody>
                 {sortedTreatments.length > 0 ? (
-                  sortedTreatments.map((treatment: any) => (
+                  sortedTreatments.map((treatment) => (
                     <tr key={treatment._id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
                         {format(new Date(treatment.treatmentDate), 'MM/dd/yyyy')}
                       </td>
                       <td className="py-3 px-4">
-                        {treatment.patient?.firstName} {treatment.patient?.lastName}
+                        {formatPersonName(treatment.patient)}
                       </td>
                       <td className="py-3 px-4">{treatment.procedure}</td>
                       <td className="py-3 px-4">${(treatment.cost || 0).toFixed(2)}</td>

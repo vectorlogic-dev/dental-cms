@@ -5,6 +5,8 @@ import api from '../utils/api';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import DentalChart from '../components/DentalChart';
+import axios from 'axios';
+import { ApiItemResponse, ApiListResponse, DentalChartEntry, PatientSummary, UserSummary } from '../types/api';
 
 export default function PatientDetail() {
   const { id } = useParams();
@@ -12,25 +14,25 @@ export default function PatientDetail() {
   const queryClient = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const { data: patient, isLoading } = useQuery(
+  const { data: patient, isLoading } = useQuery<PatientSummary>(
     ['patient', id],
     async () => {
-      const response = await api.get(`/patients/${id}`);
+      const response = await api.get<ApiItemResponse<PatientSummary>>(`/patients/${id}`);
       return response.data.data;
     },
     { enabled: !!id }
   );
 
-  const { data: dentists } = useQuery(
+  const { data: dentists } = useQuery<UserSummary[]>(
     'dentists',
     async () => {
-      const response = await api.get('/users', { params: { role: 'dentist' } });
+      const response = await api.get<ApiListResponse<UserSummary>>('/users', { params: { role: 'dentist' } });
       return response.data.data;
     }
   );
 
   const saveChartMutation = useMutation(
-    async (chartData: any) => {
+    async (chartData: DentalChartEntry[]) => {
       await api.put(`/patients/${id}`, { dentalChart: chartData });
     },
     {
@@ -38,8 +40,11 @@ export default function PatientDetail() {
         toast.success('Dental chart updated');
         queryClient.invalidateQueries(['patient', id]);
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update dental chart');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to update dental chart';
+        toast.error(message);
       },
     }
   );
@@ -54,8 +59,11 @@ export default function PatientDetail() {
         queryClient.invalidateQueries('patients');
         navigate('/patients');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to deactivate patient');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to deactivate patient';
+        toast.error(message);
       },
     }
   );
@@ -124,7 +132,9 @@ export default function PatientDetail() {
             <div>
               <dt className="text-sm font-medium text-gray-600">Date of Birth</dt>
               <dd className="mt-1 text-gray-900">
-                {format(new Date(patient.dateOfBirth), 'MM/dd/yyyy')}
+                {patient.dateOfBirth
+                  ? format(new Date(patient.dateOfBirth), 'MM/dd/yyyy')
+                  : '-'}
               </dd>
             </div>
             <div>

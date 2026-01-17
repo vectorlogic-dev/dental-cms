@@ -3,6 +3,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import { ApiItemResponse, UserSummary } from '../types/api';
+
+interface UserPayload {
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  isActive: boolean;
+}
 
 export default function UserForm() {
   const { id } = useParams();
@@ -20,10 +31,10 @@ export default function UserForm() {
   });
 
   // Fetch user data if editing
-  const { data: user, isLoading: isLoadingUser } = useQuery(
+  const { data: user, isLoading: isLoadingUser } = useQuery<UserSummary>(
     ['user', id],
     async () => {
-      const response = await api.get(`/users/${id}`);
+      const response = await api.get<ApiItemResponse<UserSummary>>(`/users/${id}`);
       return response.data.data;
     },
     { enabled: isEdit }
@@ -44,8 +55,8 @@ export default function UserForm() {
   }, [user]);
 
   const createMutation = useMutation(
-    async (data: any) => {
-      const response = await api.post('/auth/register', data);
+    async (data: UserPayload) => {
+      const response = await api.post<ApiItemResponse<UserSummary>>('/auth/register', data);
       return response.data;
     },
     {
@@ -54,15 +65,18 @@ export default function UserForm() {
         queryClient.invalidateQueries('users');
         navigate('/users');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create user');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to create user';
+        toast.error(message);
       },
     }
   );
 
   const updateMutation = useMutation(
-    async (data: any) => {
-      const response = await api.put(`/users/${id}`, data);
+    async (data: UserPayload) => {
+      const response = await api.put<ApiItemResponse<UserSummary>>(`/users/${id}`, data);
       return response.data;
     },
     {
@@ -72,8 +86,11 @@ export default function UserForm() {
         queryClient.invalidateQueries('users');
         navigate('/users');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update user');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to update user';
+        toast.error(message);
       },
     }
   );
@@ -81,7 +98,7 @@ export default function UserForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const data: any = {
+    const data: UserPayload = {
       email: formData.email,
       firstName: formData.firstName,
       lastName: formData.lastName,

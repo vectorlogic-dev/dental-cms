@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
+import { ApiListResponse, UserSummary } from '../types/api';
 
 type SortField = 'firstName' | 'lastName' | 'email' | 'role' | 'status' | null;
 type SortOrder = 'asc' | 'desc';
@@ -10,8 +11,8 @@ export default function Users() {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
-  const { data, isLoading } = useQuery('users', async () => {
-    const response = await api.get('/users');
+  const { data, isLoading } = useQuery<UserSummary[]>('users', async () => {
+    const response = await api.get<ApiListResponse<UserSummary>>('/users');
     return response.data.data;
   });
 
@@ -27,10 +28,10 @@ export default function Users() {
   const sortedUsers = useMemo(() => {
     if (!data) return [];
     
-    let sorted = [...data];
+    const sorted = [...data];
     
     if (sortField) {
-      sorted.sort((a: any, b: any) => {
+      sorted.sort((a, b) => {
         let aValue: string | boolean;
         let bValue: string | boolean;
         
@@ -145,7 +146,7 @@ export default function Users() {
               </thead>
               <tbody>
                 {sortedUsers && sortedUsers.length > 0 ? (
-                  sortedUsers.map((user: any) => (
+                  sortedUsers.map((user) => (
                   <tr key={user._id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">{user.firstName}</td>
                     <td className="py-3 px-4">{user.lastName}</td>

@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import env from '../config/env';
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -19,12 +20,18 @@ export const errorHandler = (
   res.status(statusCode).json({
     success: false,
     error: message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    ...(env.nodeEnv === 'development' && { stack: err.stack }),
   });
 };
 
-export const asyncHandler = (fn: Function) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+type AsyncHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<unknown>;
+
+export const asyncHandler = (fn: AsyncHandler): RequestHandler => {
+  return (req, res, next) => {
+    void Promise.resolve(fn(req, res, next)).catch(next);
   };
 };

@@ -6,6 +6,24 @@ import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import axios from 'axios';
+import {
+  ApiItemResponse,
+  ApiListResponse,
+  Appointment,
+  PatientSummary,
+  UserSummary,
+} from '../types/api';
+
+interface AppointmentPayload {
+  patient: string;
+  dentist: string;
+  appointmentDate: string;
+  duration: number;
+  type: string;
+  status: string;
+  notes?: string;
+}
 
 export default function AppointmentForm() {
   const { id } = useParams();
@@ -26,17 +44,17 @@ export default function AppointmentForm() {
   });
 
   // Fetch patients and dentists
-  const { data: patients } = useQuery('patients-list', async () => {
-    const response = await api.get('/patients', { params: { limit: 1000 } });
+  const { data: patients } = useQuery<PatientSummary[]>('patients-list', async () => {
+    const response = await api.get<ApiListResponse<PatientSummary>>('/patients', { params: { limit: 1000 } });
     return response.data.data;
   });
 
-  const { data: dentists } = useQuery('dentists-list', async () => {
-    const response = await api.get('/users', { params: { role: 'dentist' } });
+  const { data: dentists } = useQuery<UserSummary[]>('dentists-list', async () => {
+    const response = await api.get<ApiListResponse<UserSummary>>('/users', { params: { role: 'dentist' } });
     return response.data.data;
   });
 
-  const { data: bookedAppointments } = useQuery(
+  const { data: bookedAppointments } = useQuery<Appointment[]>(
     ['appointments-by-date', formData.dentist, formData.appointmentDate],
     async () => {
       const isoDate = toIsoDate(formData.appointmentDate);
@@ -50,16 +68,16 @@ export default function AppointmentForm() {
           limit: 200,
         },
       });
-      return response.data.data;
+      return (response.data as ApiListResponse<Appointment>).data;
     },
     { enabled: !!formData.dentist && !!formData.appointmentDate }
   );
 
   // Fetch appointment data if editing
-  const { data: appointment, isLoading: isLoadingAppointment } = useQuery(
+  const { data: appointment, isLoading: isLoadingAppointment } = useQuery<Appointment>(
     ['appointment', id],
     async () => {
-      const response = await api.get(`/appointments/${id}`);
+      const response = await api.get<ApiItemResponse<Appointment>>(`/appointments/${id}`);
       return response.data.data;
     },
     { enabled: isEdit }
@@ -114,7 +132,7 @@ export default function AppointmentForm() {
     const blocked = new Set<number>();
     if (!bookedAppointments || !formData.appointmentDate) return blocked;
 
-    bookedAppointments.forEach((apt: any) => {
+    bookedAppointments.forEach((apt) => {
       if (apt._id === id) return;
       if (apt.status === 'cancelled' || apt.status === 'no-show') return;
       const start = new Date(apt.appointmentDate);
@@ -134,8 +152,12 @@ export default function AppointmentForm() {
     if (appointment) {
       const date = new Date(appointment.appointmentDate);
       setFormData({
-        patient: appointment.patient._id || appointment.patient,
-        dentist: appointment.dentist._id || appointment.dentist,
+        patient: typeof appointment.patient === 'string'
+          ? appointment.patient
+          : appointment.patient?._id || '',
+        dentist: typeof appointment.dentist === 'string'
+          ? appointment.dentist
+          : appointment.dentist?._id || '',
         appointmentDate: format(date, 'MM/dd/yyyy'),
         appointmentTime: date.toTimeString().slice(0, 5),
         duration: appointment.duration?.toString() || '30',
@@ -147,8 +169,8 @@ export default function AppointmentForm() {
   }, [appointment]);
 
   const createMutation = useMutation(
-    async (data: any) => {
-      const response = await api.post('/appointments', data);
+    async (data: AppointmentPayload) => {
+      const response = await api.post<ApiItemResponse<Appointment>>('/appointments', data);
       return response.data;
     },
     {
@@ -158,15 +180,18 @@ export default function AppointmentForm() {
         queryClient.invalidateQueries('today-appointments');
         navigate('/appointments');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to schedule appointment');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to schedule appointment';
+        toast.error(message);
       },
     }
   );
 
   const updateMutation = useMutation(
-    async (data: any) => {
-      const response = await api.put(`/appointments/${id}`, data);
+    async (data: AppointmentPayload) => {
+      const response = await api.put<ApiItemResponse<Appointment>>(`/appointments/${id}`, data);
       return response.data;
     },
     {
@@ -177,8 +202,11 @@ export default function AppointmentForm() {
         queryClient.invalidateQueries('today-appointments');
         navigate('/appointments');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update appointment');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to update appointment';
+        toast.error(message);
       },
     }
   );
@@ -195,7 +223,7 @@ export default function AppointmentForm() {
       `${toIsoDate(formData.appointmentDate)}T${formData.appointmentTime}`
     );
 
-    const data = {
+    const data: AppointmentPayload = {
       patient: formData.patient,
       dentist: formData.dentist,
       appointmentDate: appointmentDateTime.toISOString(),
@@ -233,7 +261,7 @@ export default function AppointmentForm() {
               required
             >
               <option value="">Select a patient</option>
-              {patients?.map((patient: any) => (
+              {patients?.map((patient) => (
                 <option key={patient._id} value={patient._id}>
                   {patient.firstName} {patient.lastName} ({patient.patientNumber})
                 </option>
@@ -250,7 +278,7 @@ export default function AppointmentForm() {
               required
             >
               <option value="">Select a dentist</option>
-              {dentists?.map((dentist: any) => (
+              {dentists?.map((dentist) => (
                 <option key={dentist._id} value={dentist._id}>
                   {dentist.firstName} {dentist.lastName}
                 </option>

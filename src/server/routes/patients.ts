@@ -8,6 +8,7 @@ import {
   deletePatient,
 } from '../controllers/patientController';
 import { authenticate } from '../middleware/auth';
+import { validateRequest } from '../middleware/validateRequest';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.get('/', getPatients);
 router.get(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   getPatient
 );
 
@@ -32,6 +34,7 @@ router.post(
     body('phone').notEmpty(),
     body('email').optional().isEmail().normalizeEmail(),
   ],
+  validateRequest,
   createPatient
 );
 
@@ -42,12 +45,14 @@ router.put(
     body('email').optional().isEmail().normalizeEmail(),
     body('gender').optional().isIn(['male', 'female', 'other']),
   ],
+  validateRequest,
   updatePatient
 );
 
 router.delete(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   deletePatient
 );
 

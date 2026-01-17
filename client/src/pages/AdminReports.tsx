@@ -2,7 +2,7 @@ import { useState } from 'react';
 import api from '../utils/api';
 
 interface QueryResult {
-  data: any[];
+  data: Record<string, unknown>[];
   count?: number;
   executionTime?: number;
 }
@@ -61,10 +61,10 @@ export default function AdminReports() {
         query: parsedQuery,
       });
       setResults(response.data);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || err.message || 'Error executing query'
-      );
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Error executing query';
+      setError(message);
       console.error('Query error:', err);
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ export default function AdminReports() {
       const headers = Object.keys(results.data[0]);
       
       // Helper function to format dates for CSV (date only, no time)
-      const formatValueForCSV = (value: any): string => {
+      const formatValueForCSV = (value: unknown): string => {
         if (value === null || value === undefined) return '';
         if (typeof value === 'object') return JSON.stringify(value);
         
@@ -139,16 +139,6 @@ export default function AdminReports() {
     if (!printWindow) return;
 
     const headers = results.data.length > 0 ? Object.keys(results.data[0]) : [];
-    const tableRows = results.data.map((row) =>
-      headers
-        .map((header) => {
-          const value = row[header];
-          if (value === null || value === undefined) return '';
-          if (typeof value === 'object') return JSON.stringify(value);
-          return String(value);
-        })
-        .join(' | ')
-    );
 
     printWindow.document.write(`
       <html>

@@ -8,6 +8,7 @@ import {
   deleteTreatment,
 } from '../controllers/treatmentController';
 import { authenticate } from '../middleware/auth';
+import { validateRequest } from '../middleware/validateRequest';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.get('/', getTreatments);
 router.get(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   getTreatment
 );
 
@@ -34,6 +36,7 @@ router.post(
     body('paid').optional().isFloat({ min: 0 }),
     body('status').optional().isIn(['pending', 'in-progress', 'completed', 'cancelled']),
   ],
+  validateRequest,
   createTreatment
 );
 
@@ -45,12 +48,14 @@ router.put(
     body('paid').optional().isFloat({ min: 0 }),
     body('status').optional().isIn(['pending', 'in-progress', 'completed', 'cancelled']),
   ],
+  validateRequest,
   updateTreatment
 );
 
 router.delete(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   deleteTreatment
 );
 

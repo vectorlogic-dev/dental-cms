@@ -1,18 +1,14 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import User from '../models/User';
 import Patient from '../models/Patient';
 import Appointment from '../models/Appointment';
 import Treatment from '../models/Treatment';
 import { addDays, setHours, setMinutes, startOfToday, startOfWeek, addWeeks } from 'date-fns';
-
-dotenv.config();
+import connectDB from '../config/database';
 
 const seedData = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dental-cms';
-    await mongoose.connect(mongoURI);
-    console.log('Connected to MongoDB');
+    await connectDB();
 
     // Create Dentists if they don't exist
     const dentists = [
@@ -51,8 +47,8 @@ const seedData = async () => {
     }
 
     // Create Appointments across multiple weeks
-    const appointmentTypes: any[] = ['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up'];
-    const statuses: any[] = ['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'];
+    const appointmentTypes = ['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up'] as const;
+    const statuses = ['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'] as const;
 
     const today = startOfToday();
     const startDate = startOfWeek(today);

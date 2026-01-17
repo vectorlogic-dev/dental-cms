@@ -7,6 +7,7 @@ import {
   deleteUser,
 } from '../controllers/userController';
 import { authenticate, authorize } from '../middleware/auth';
+import { validateRequest } from '../middleware/validateRequest';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.get('/', getUsers);
 router.get(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   getUser
 );
 
@@ -32,12 +34,14 @@ router.put(
     body('role').optional().isIn(['admin', 'dentist', 'assistant', 'receptionist']),
     body('isActive').optional().isBoolean(),
   ],
+  validateRequest,
   updateUser
 );
 
 router.delete(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   deleteUser
 );
 

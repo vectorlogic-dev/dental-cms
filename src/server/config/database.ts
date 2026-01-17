@@ -1,11 +1,9 @@
 import mongoose from 'mongoose';
+import env from './env';
 
 const connectDB = async (): Promise<void> => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dental-cms';
-    
-    await mongoose.connect(mongoURI);
-    
+    await mongoose.connect(env.mongoUri);
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);

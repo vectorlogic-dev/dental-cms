@@ -1,15 +1,10 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import User from '../models/User';
-
-dotenv.config();
+import connectDB from '../config/database';
 
 const createAdminUser = async () => {
   try {
-    // Connect to MongoDB
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dental-cms';
-    await mongoose.connect(mongoURI);
-    console.log('Connected to MongoDB');
+    await connectDB();
 
     // Check if admin user already exists
     const existingAdmin = await User.findOne({ email: 'admin@dentalcms.com' });

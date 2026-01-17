@@ -384,6 +384,10 @@
   background: #1d4ed8;
 }
 
+.dark .dc-history-section {
+  border-top-color: #1f2937;
+}
+
 .dark .dc-history-item {
   background: #0b1220;
   border-color: #1f2937;

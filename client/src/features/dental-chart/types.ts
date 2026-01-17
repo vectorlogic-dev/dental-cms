@@ -17,12 +17,21 @@ export interface ToothState {
   notes: string;
   procedure: string;
   updatedAt: string; // ISO string
-  dentist?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-  } | string;
-  history?: any[];
+  dentist?: DentistRef | string;
+  history?: ToothHistoryEntry[];
+}
+
+export interface DentistRef {
+  _id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface ToothHistoryEntry {
+  procedure?: string;
+  notes?: string;
+  date: string | Date;
+  dentist?: DentistRef | string;
 }
 
 export type DentalChartState = Record<ToothId, ToothState>;

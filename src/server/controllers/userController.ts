@@ -1,5 +1,4 @@
 import { Response } from 'express';
-import { validationResult } from 'express-validator';
 import User from '../models/User';
 import { asyncHandler } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
@@ -11,7 +10,7 @@ export const getUsers = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const { page = 1, limit = 20, role, isActive } = req.query;
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (role) query.role = role;
     if (isActive !== undefined) query.isActive = isActive === 'true';
 
@@ -60,13 +59,7 @@ export const getUser = asyncHandler(
 // @access  Private (Admin only)
 export const updateUser = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
-    const { password, ...updateData } = req.body;
+    const { password: _password, ...updateData } = req.body;
 
     const user = await User.findByIdAndUpdate(
       req.params.id,

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { toast } from 'react-toastify';
+import { ApiListResponse, PatientSummary } from '../types/api';
 
 type SortField = 'patientNumber' | 'firstName' | 'lastName' | 'phone' | 'email' | null;
 type SortOrder = 'asc' | 'desc';
@@ -14,10 +14,10 @@ export default function Patients() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const navigate = useNavigate();
 
-  const { data, isLoading, refetch } = useQuery(
+  const { data, isLoading } = useQuery<ApiListResponse<PatientSummary>>(
     ['patients', page, search],
     async () => {
-      const response = await api.get('/patients', {
+      const response = await api.get<ApiListResponse<PatientSummary>>('/patients', {
         params: { page, limit: 1000, search }, // Get more records for client-side sorting
       });
       return response.data;
@@ -41,10 +41,10 @@ export default function Patients() {
   const sortedPatients = useMemo(() => {
     if (!data?.data) return [];
     
-    let sorted = [...data.data];
+    const sorted = [...data.data];
     
     if (sortField) {
-      sorted.sort((a: any, b: any) => {
+      sorted.sort((a, b) => {
         let aValue: string;
         let bValue: string;
         
@@ -181,7 +181,7 @@ export default function Patients() {
                 </thead>
                 <tbody>
                   {sortedPatients && sortedPatients.length > 0 ? (
-                    sortedPatients.map((patient: any) => (
+                    sortedPatients.map((patient) => (
                       <tr
                         key={patient._id}
                         className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"

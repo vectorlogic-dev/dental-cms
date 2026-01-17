@@ -5,17 +5,14 @@ import {
   DentalChartState,
   listAllToothIds,
   ToothId,
+  DentistRef,
+  ToothHistoryEntry,
 } from '../features/dental-chart';
 
-interface Procedure {
+interface Procedure extends ToothHistoryEntry {
   procedure: string;
   notes: string;
   date: string | Date;
-  dentist?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-  } | string;
 }
 
 interface ToothData {
@@ -28,7 +25,7 @@ interface DentalChartProps {
   onSave: (data: ToothData[]) => void;
   isLoading?: boolean;
   storageKey?: string;
-  dentists?: any[];
+  dentists?: DentistRef[];
 }
 
 const toToothId = (toothNumber: number): ToothId | null => {
@@ -144,7 +141,7 @@ export default function DentalChart({
       chart.destroy();
       chartRef.current = null;
     };
-  }, [initialState, onSave, storageKey]);
+  }, [initialState, onSave, storageKey, dentists]);
 
   return (
     <div className="card mt-8">

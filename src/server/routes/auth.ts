@@ -5,8 +5,8 @@ import {
   login,
   getMe,
 } from '../controllers/authController';
-import { authenticate } from '../middleware/auth';
-import { authorize } from '../middleware/auth';
+import { authenticate, authorize } from '../middleware/auth';
+import { validateRequest } from '../middleware/validateRequest';
 
 const router = express.Router();
 
@@ -21,6 +21,7 @@ router.post(
     body('lastName').trim().notEmpty(),
     body('role').optional().isIn(['admin', 'dentist', 'assistant', 'receptionist']),
   ],
+  validateRequest,
   register
 );
 
@@ -30,6 +31,7 @@ router.post(
     body('email').isEmail().normalizeEmail(),
     body('password').notEmpty(),
   ],
+  validateRequest,
   login
 );
 

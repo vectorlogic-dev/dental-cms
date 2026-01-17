@@ -1,5 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
-import { validationResult } from 'express-validator';
+import { Request, Response } from 'express';
 import User from '../models/User';
 import { generateToken } from '../utils/generateToken';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -9,13 +8,7 @@ import { AuthRequest } from '../middleware/auth';
 // @route   POST /api/auth/register
 // @access  Private (Admin only)
 export const register = asyncHandler(
-  async (req: AuthRequest, res: Response, _next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
+  async (req: AuthRequest, res: Response) => {
     const { email, password, firstName, lastName, role } = req.body;
 
     // Check if user exists
@@ -54,13 +47,7 @@ export const register = asyncHandler(
 // @route   POST /api/auth/login
 // @access  Public
 export const login = asyncHandler(
-  async (req: Request, res: Response, _next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
+  async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Find user and include password
@@ -96,7 +83,7 @@ export const login = asyncHandler(
 // @route   GET /api/auth/me
 // @access  Private
 export const getMe = asyncHandler(
-  async (req: AuthRequest, res: Response, _next: NextFunction) => {
+  async (req: AuthRequest, res: Response) => {
     const user = await User.findById(req.user?._id);
 
     if (!user) {

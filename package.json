@@ -2,7 +2,7 @@
   "name": "dental-cms",
   "version": "1.0.0",
   "description": "Dental Customer Management System",
-  "main": "dist/server.js",
+  "main": "dist/server/index.js",
   "scripts": {
     "install:all": "npm install && cd client && npm install && cd ..",
     "setup": "npm run install:all && npm run create:admin",

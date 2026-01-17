@@ -70,9 +70,10 @@
   color: #94a3b8 !important;
 }
 
+.dark .border-gray-300,
 .dark .border-gray-200,
 .dark .border-gray-100 {
-  border-color: #1f2937 !important;
+  border-color: #334155 !important;
 }
 
 .dark .shadow-md,

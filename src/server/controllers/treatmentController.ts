@@ -1,5 +1,4 @@
 import { Response } from 'express';
-import { validationResult } from 'express-validator';
 import Treatment from '../models/Treatment';
 import { asyncHandler } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
@@ -19,16 +18,28 @@ export const getTreatments = asyncHandler(
       endDate,
     } = req.query;
 
-    const query: any = {};
+    const query: {
+      patient?: string;
+      dentist?: string;
+      status?: string;
+      treatmentDate?: { $gte?: Date; $lte?: Date };
+    } = {};
+    const getString = (value: typeof status): string | undefined =>
+      typeof value === 'string' ? value : undefined;
 
-    if (patientId) query.patient = patientId;
-    if (dentistId) query.dentist = dentistId;
-    if (status) query.status = status;
+    const patientValue = getString(patientId);
+    if (patientValue) query.patient = patientValue;
+
+    const dentistValue = getString(dentistId);
+    if (dentistValue) query.dentist = dentistValue;
+
+    const statusValue = getString(status);
+    if (statusValue) query.status = statusValue;
 
     if (startDate || endDate) {
       query.treatmentDate = {};
-      if (startDate) query.treatmentDate.$gte = new Date(startDate as string);
-      if (endDate) query.treatmentDate.$lte = new Date(endDate as string);
+      if (typeof startDate === 'string') query.treatmentDate.$gte = new Date(startDate);
+      if (typeof endDate === 'string') query.treatmentDate.$lte = new Date(endDate);
     }
 
     const treatments = await Treatment.find(query)
@@ -82,12 +93,6 @@ export const getTreatment = asyncHandler(
 // @access  Private
 export const createTreatment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
     const treatment = await Treatment.create({
       ...req.body,
       createdBy: req.user?._id,
@@ -109,12 +114,6 @@ export const createTreatment = asyncHandler(
 // @access  Private
 export const updateTreatment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
     const treatment = await Treatment.findByIdAndUpdate(
       req.params.id,
       req.body,

@@ -8,6 +8,7 @@ import {
   deleteAppointment,
 } from '../controllers/appointmentController';
 import { authenticate } from '../middleware/auth';
+import { validateRequest } from '../middleware/validateRequest';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.get('/', getAppointments);
 router.get(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   getAppointment
 );
 
@@ -32,6 +34,7 @@ router.post(
     body('type').isIn(['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up']),
     body('status').optional().isIn(['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show']),
   ],
+  validateRequest,
   createAppointment
 );
 
@@ -43,12 +46,14 @@ router.put(
     body('type').optional().isIn(['checkup', 'cleaning', 'treatment', 'consultation', 'emergency', 'follow-up']),
     body('status').optional().isIn(['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show']),
   ],
+  validateRequest,
   updateAppointment
 );
 
 router.delete(
   '/:id',
   [param('id').isMongoId()],
+  validateRequest,
   deleteAppointment
 );
 

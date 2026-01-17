@@ -4,6 +4,40 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
+import axios from 'axios';
+import {
+  ApiItemResponse,
+  ApiListResponse,
+  Appointment,
+  PatientSummary,
+  Treatment,
+  UserSummary,
+} from '../types/api';
+
+interface TreatmentDetails extends Treatment {
+  appointment?: Appointment | string;
+  treatmentType?: string;
+  toothNumbers?: string[];
+  diagnosis?: string;
+  description?: string;
+  paid?: number;
+}
+
+interface TreatmentPayload {
+  patient: string;
+  appointment?: string;
+  dentist: string;
+  treatmentDate: string;
+  treatmentType: string;
+  toothNumbers?: string[];
+  diagnosis?: string;
+  procedure: string;
+  description?: string;
+  cost: number;
+  paid: number;
+  status: string;
+  notes?: string;
+}
 
 export default function TreatmentForm() {
   const { id } = useParams();
@@ -28,21 +62,21 @@ export default function TreatmentForm() {
   });
 
   // Fetch patients, dentists, and appointments
-  const { data: patients } = useQuery('patients-list', async () => {
-    const response = await api.get('/patients', { params: { limit: 1000 } });
+  const { data: patients } = useQuery<PatientSummary[]>('patients-list', async () => {
+    const response = await api.get<ApiListResponse<PatientSummary>>('/patients', { params: { limit: 1000 } });
     return response.data.data;
   });
 
-  const { data: dentists } = useQuery('dentists-list', async () => {
-    const response = await api.get('/users', { params: { role: 'dentist' } });
+  const { data: dentists } = useQuery<UserSummary[]>('dentists-list', async () => {
+    const response = await api.get<ApiListResponse<UserSummary>>('/users', { params: { role: 'dentist' } });
     return response.data.data;
   });
 
-  const { data: appointments } = useQuery(
+  const { data: appointments } = useQuery<Appointment[]>(
     ['appointments-list', formData.patient],
     async () => {
       if (!formData.patient) return [];
-      const response = await api.get('/appointments', {
+      const response = await api.get<ApiListResponse<Appointment>>('/appointments', {
         params: { patientId: formData.patient, limit: 100 },
       });
       return response.data.data;
@@ -51,10 +85,10 @@ export default function TreatmentForm() {
   );
 
   // Fetch treatment data if editing
-  const { data: treatment, isLoading: isLoadingTreatment } = useQuery(
+  const { data: treatment, isLoading: isLoadingTreatment } = useQuery<TreatmentDetails>(
     ['treatment', id],
     async () => {
-      const response = await api.get(`/treatments/${id}`);
+      const response = await api.get<ApiItemResponse<TreatmentDetails>>(`/treatments/${id}`);
       return response.data.data;
     },
     { enabled: isEdit }
@@ -64,9 +98,15 @@ export default function TreatmentForm() {
   useEffect(() => {
     if (treatment) {
       setFormData({
-        patient: treatment.patient._id || treatment.patient,
-        appointment: treatment.appointment?._id || treatment.appointment || '',
-        dentist: treatment.dentist._id || treatment.dentist,
+        patient: typeof treatment.patient === 'string'
+          ? treatment.patient
+          : treatment.patient?._id || '',
+        appointment: typeof treatment.appointment === 'string'
+          ? treatment.appointment
+          : treatment.appointment?._id || '',
+        dentist: typeof treatment.dentist === 'string'
+          ? treatment.dentist
+          : treatment.dentist?._id || '',
         treatmentDate: treatment.treatmentDate
           ? new Date(treatment.treatmentDate).toISOString().split('T')[0]
           : new Date().toISOString().split('T')[0],
@@ -84,8 +124,8 @@ export default function TreatmentForm() {
   }, [treatment]);
 
   const createMutation = useMutation(
-    async (data: any) => {
-      const response = await api.post('/treatments', data);
+    async (data: TreatmentPayload) => {
+      const response = await api.post<ApiItemResponse<TreatmentDetails>>('/treatments', data);
       return response.data;
     },
     {
@@ -94,15 +134,18 @@ export default function TreatmentForm() {
         queryClient.invalidateQueries('treatments');
         navigate('/treatments');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create treatment');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to create treatment';
+        toast.error(message);
       },
     }
   );
 
   const updateMutation = useMutation(
-    async (data: any) => {
-      const response = await api.put(`/treatments/${id}`, data);
+    async (data: TreatmentPayload) => {
+      const response = await api.put<ApiItemResponse<TreatmentDetails>>(`/treatments/${id}`, data);
       return response.data;
     },
     {
@@ -112,8 +155,11 @@ export default function TreatmentForm() {
         queryClient.invalidateQueries('treatments');
         navigate('/treatments');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update treatment');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to update treatment';
+        toast.error(message);
       },
     }
   );
@@ -125,7 +171,7 @@ export default function TreatmentForm() {
       ? formData.toothNumbers.split(',').map((t) => t.trim()).filter((t) => t)
       : undefined;
 
-    const data = {
+    const data: TreatmentPayload = {
       patient: formData.patient,
       appointment: formData.appointment || undefined,
       dentist: formData.dentist,
@@ -169,7 +215,7 @@ export default function TreatmentForm() {
               required
             >
               <option value="">Select a patient</option>
-              {patients?.map((patient: any) => (
+              {patients?.map((patient) => (
                 <option key={patient._id} value={patient._id}>
                   {patient.firstName} {patient.lastName} ({patient.patientNumber})
                 </option>
@@ -186,7 +232,7 @@ export default function TreatmentForm() {
               disabled={!formData.patient}
             >
               <option value="">No appointment</option>
-              {appointments?.map((apt: any) => (
+              {appointments?.map((apt) => (
                 <option key={apt._id} value={apt._id}>
                   {format(new Date(apt.appointmentDate), 'MM/dd/yyyy hh:mm a')} - {apt.type}
                 </option>
@@ -203,7 +249,7 @@ export default function TreatmentForm() {
               required
             >
               <option value="">Select a dentist</option>
-              {dentists?.map((dentist: any) => (
+              {dentists?.map((dentist) => (
                 <option key={dentist._id} value={dentist._id}>
                   {dentist.firstName} {dentist.lastName}
                 </option>

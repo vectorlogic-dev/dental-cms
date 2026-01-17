@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import api from '../utils/api';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -19,8 +19,11 @@ export default function Login() {
       await login(email, password);
       toast.success('Login successful!');
       navigate('/dashboard');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed');
+    } catch (error: unknown) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Login failed';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

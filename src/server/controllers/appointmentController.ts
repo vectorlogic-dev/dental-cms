@@ -1,10 +1,21 @@
 import { Response } from 'express';
-import { validationResult } from 'express-validator';
 import Appointment from '../models/Appointment';
 import { asyncHandler } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 
-const buildAppointmentQuery = (queryParams: AuthRequest['query']) => {
+type AppointmentDateQuery = {
+  $gte?: Date;
+  $lte?: Date;
+};
+
+type AppointmentQuery = {
+  appointmentDate?: AppointmentDateQuery;
+  status?: string;
+  patient?: string;
+  dentist?: string;
+};
+
+const buildAppointmentQuery = (queryParams: AuthRequest['query']): AppointmentQuery => {
   const {
     startDate,
     endDate,
@@ -13,17 +24,24 @@ const buildAppointmentQuery = (queryParams: AuthRequest['query']) => {
     dentistId,
   } = queryParams;
 
-  const query: any = {};
+  const query: AppointmentQuery = {};
+  const getString = (value: typeof status): string | undefined =>
+    typeof value === 'string' ? value : undefined;
 
   if (startDate || endDate) {
     query.appointmentDate = {};
-    if (startDate) query.appointmentDate.$gte = new Date(startDate as string);
-    if (endDate) query.appointmentDate.$lte = new Date(endDate as string);
+    if (typeof startDate === 'string') query.appointmentDate.$gte = new Date(startDate);
+    if (typeof endDate === 'string') query.appointmentDate.$lte = new Date(endDate);
   }
 
-  if (status) query.status = status;
-  if (patientId) query.patient = patientId;
-  if (dentistId) query.dentist = dentistId;
+  const statusValue = getString(status);
+  if (statusValue) query.status = statusValue;
+
+  const patientValue = getString(patientId);
+  if (patientValue) query.patient = patientValue;
+
+  const dentistValue = getString(dentistId);
+  if (dentistValue) query.dentist = dentistValue;
 
   return query;
 };
@@ -92,12 +110,6 @@ export const getAppointment = asyncHandler(
 // @access  Private
 export const createAppointment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
     const appointment = await Appointment.create({
       ...req.body,
       createdBy: req.user?._id,
@@ -119,12 +131,6 @@ export const createAppointment = asyncHandler(
 // @access  Private
 export const updateAppointment = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
     const appointment = await Appointment.findByIdAndUpdate(
       req.params.id,
       req.body,

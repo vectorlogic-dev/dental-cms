@@ -1,5 +1,4 @@
 import { Response } from 'express';
-import { validationResult } from 'express-validator';
 import Patient from '../models/Patient';
 import { generatePatientNumber } from '../utils/generatePatientNumber';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -17,7 +16,7 @@ export const getPatients = asyncHandler(
       isActive = true,
     } = req.query;
 
-    const query: any = { isActive };
+    const query: Record<string, unknown> = { isActive };
 
     if (search) {
       query.$or = [
@@ -75,12 +74,6 @@ export const getPatient = asyncHandler(
 // @access  Private
 export const createPatient = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
     const patientNumber = await generatePatientNumber();
 
     const patient = await Patient.create({
@@ -101,12 +94,6 @@ export const createPatient = asyncHandler(
 // @access  Private
 export const updatePatient = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
-    }
-
     const patient = await Patient.findByIdAndUpdate(
       req.params.id,
       req.body,

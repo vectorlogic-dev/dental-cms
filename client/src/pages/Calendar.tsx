@@ -17,6 +17,7 @@ import {
 } from 'date-fns';
 import api from '../utils/api';
 import { Link } from 'react-router-dom';
+import { ApiListResponse, Appointment } from '../types/api';
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -27,10 +28,10 @@ export default function Calendar() {
   const rangeStart = isMonthView ? startOfWeek(startOfMonth(currentDate)) : startOfWeek(currentDate);
   const rangeEnd = isMonthView ? endOfWeek(endOfMonth(currentDate)) : endOfWeek(currentDate);
 
-  const { data: appointments, isLoading } = useQuery(
+  const { data: appointments, isLoading } = useQuery<Appointment[]>(
     ['appointments', view, format(rangeStart, 'yyyy-MM-dd')],
     async () => {
-      const response = await api.get('/appointments', {
+      const response = await api.get<ApiListResponse<Appointment>>('/appointments', {
         params: {
           startDate: rangeStart.toISOString(),
           endDate: rangeEnd.toISOString(),
@@ -52,6 +53,11 @@ export default function Calendar() {
       ...prev,
       [dayKey]: !prev[dayKey],
     }));
+  };
+
+  const formatPatientName = (patient?: Appointment['patient']): string => {
+    if (!patient || typeof patient === 'string') return '';
+    return `${patient.firstName || ''} ${patient.lastName || ''}`.trim();
   };
 
   const renderHeader = () => (
@@ -148,9 +154,10 @@ export default function Calendar() {
     return (
       <div className="grid grid-cols-7 bg-gray-200 dark:bg-gray-700 gap-px rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700">
         {calendarDays.map((day) => {
-          const dayAppointments = appointments?.filter((apt: any) =>
-            isSameDay(new Date(apt.appointmentDate), day)
-          ) || [];
+          const dayAppointments =
+            appointments?.filter((apt) =>
+              isSameDay(new Date(apt.appointmentDate), day)
+            ) || [];
 
           const maxItems = isMonthView ? 4 : 8;
           const dayKey = format(day, 'yyyy-MM-dd');
@@ -184,14 +191,14 @@ export default function Calendar() {
               <div className={`space-y-1 overflow-y-auto scrollbar-hide ${
                 isMonthView ? 'max-h-[100px]' : 'max-h-[35vh]'
               }`}>
-                {visibleAppointments.map((apt: any) => (
+                {visibleAppointments.map((apt) => (
                   <Link
                     key={apt._id}
                     to={`/appointments/${apt._id}/edit`}
-                    className={`block px-2 py-1 text-[10px] sm:text-xs rounded-md border truncate transition-all hover:shadow-md ${getStatusStyles(apt.status)}`}
+                    className={`block px-2 py-1 text-[10px] sm:text-xs rounded-md border truncate transition-all hover:shadow-md ${getStatusStyles(apt.status || 'scheduled')}`}
                   >
                     <span className="font-bold mr-1">{format(new Date(apt.appointmentDate), 'HH:mm')}</span>
-                    {apt.patient?.firstName} {apt.patient?.lastName}
+                    {formatPatientName(apt.patient)}
                   </Link>
                 ))}
                 {dayAppointments.length > maxItems && (

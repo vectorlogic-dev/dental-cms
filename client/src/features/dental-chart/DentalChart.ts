@@ -7,6 +7,8 @@ import {
   ToothId,
   ToothState,
   ToothStatus,
+  DentistRef,
+  ToothHistoryEntry,
 } from './types';
 
 export interface DentalChartOptions {
@@ -14,7 +16,7 @@ export interface DentalChartOptions {
   storageKey?: string; // default: "dentalChartState"
   onSelect?: (id: ToothId, state: ToothState) => void;
   onChange?: (state: DentalChartState) => void;
-  dentists?: any[];
+  dentists?: DentistRef[];
 }
 
 const TOOTH_STATUSES: ToothStatus[] = [
@@ -38,6 +40,21 @@ const isToothId = (value: string | null): value is ToothId =>
 const isToothStatus = (value: string): value is ToothStatus =>
   TOOTH_STATUSES.includes(value as ToothStatus);
 
+const isDentistRef = (value: unknown): value is DentistRef => {
+  if (!value || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  return (
+    typeof record._id === 'string' &&
+    typeof record.firstName === 'string' &&
+    typeof record.lastName === 'string'
+  );
+};
+
+const isHistoryEntry = (value: unknown): value is ToothHistoryEntry => {
+  if (!value || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.date === 'string';
+};
 
 
 const statusClass = (status: ToothStatus): string => `is-${status}`;
@@ -112,13 +129,19 @@ const parseStoredState = (raw: string | null): DentalChartState | null => {
         typeof record.status === 'string' &&
         isToothStatus(record.status)
       ) {
+        const dentist = record.dentist;
+        const history = Array.isArray(record.history)
+          ? record.history.filter(isHistoryEntry)
+          : [];
+
         base[id] = {
           id,
           status: record.status,
           notes: record.notes,
           procedure: record.procedure,
           updatedAt: record.updatedAt,
-          dentist: record.dentist as any,
+          dentist: typeof dentist === 'string' || isDentistRef(dentist) ? dentist : undefined,
+          history,
         };
       }
     }
@@ -538,7 +561,7 @@ export class DentalChart {
     this.renderHistory(current.history || []);
   }
 
-  private renderHistory(history: any[]): void {
+  private renderHistory(history: ToothHistoryEntry[]): void {
     if (!this.historyContainer) return;
     this.historyContainer.innerHTML = '';
     
@@ -597,9 +620,9 @@ export class DentalChart {
       : 'healthy';
     const nextState = cloneState(this.state);
     
-    let dentist = this.dentistSelect.value;
+    let dentist: string | DentistRef = this.dentistSelect.value;
     if (dentist && this.options.dentists) {
-      const found = this.options.dentists.find(d => d._id === dentist);
+      const found = this.options.dentists.find((d) => d._id === dentist);
       if (found) dentist = found;
     }
 

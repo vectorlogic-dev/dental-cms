@@ -3,7 +3,32 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
-import { format } from 'date-fns';
+import axios from 'axios';
+import { ApiItemResponse, PatientSummary } from '../types/api';
+
+interface PatientPayload {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  email?: string;
+  phone: string;
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  emergencyContact?: {
+    name: string;
+    relationship: string;
+    phone: string;
+  };
+  allergies?: string[];
+  medicalHistory?: string[];
+  notes?: string;
+}
 
 const PHILIPPINES_PROVINCES = [
   'Abra',
@@ -118,10 +143,10 @@ export default function PatientForm() {
   });
 
   // Fetch patient data if editing
-  const { data: patient, isLoading: isLoadingPatient } = useQuery(
+  const { data: patient, isLoading: isLoadingPatient } = useQuery<PatientSummary>(
     ['patient', id],
     async () => {
-      const response = await api.get(`/patients/${id}`);
+      const response = await api.get<ApiItemResponse<PatientSummary>>(`/patients/${id}`);
       return response.data.data;
     },
     { enabled: isEdit }
@@ -179,8 +204,8 @@ export default function PatientForm() {
   }, [patient]);
 
   const createMutation = useMutation(
-    async (data: any) => {
-      const response = await api.post('/patients', data);
+    async (data: PatientPayload) => {
+      const response = await api.post<ApiItemResponse<PatientSummary>>('/patients', data);
       return response.data;
     },
     {
@@ -189,15 +214,18 @@ export default function PatientForm() {
         queryClient.invalidateQueries('patients');
         navigate('/patients');
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create patient');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to create patient';
+        toast.error(message);
       },
     }
   );
 
   const updateMutation = useMutation(
-    async (data: any) => {
-      const response = await api.put(`/patients/${id}`, data);
+    async (data: PatientPayload) => {
+      const response = await api.put<ApiItemResponse<PatientSummary>>(`/patients/${id}`, data);
       return response.data;
     },
     {
@@ -207,8 +235,11 @@ export default function PatientForm() {
         queryClient.invalidateQueries('patients');
         navigate(`/patients/${id}`);
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to update patient');
+      onError: (error: unknown) => {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : 'Failed to update patient';
+        toast.error(message);
       },
     }
   );
@@ -242,7 +273,7 @@ export default function PatientForm() {
       ? formData.medicalHistory.split(',').map((h) => h.trim()).filter((h) => h)
       : undefined;
 
-    const data = {
+    const data: PatientPayload = {
       firstName: formData.firstName,
       lastName: formData.lastName,
       dateOfBirth: toIsoDate(formData.dateOfBirth),

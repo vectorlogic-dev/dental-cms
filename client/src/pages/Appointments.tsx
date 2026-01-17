@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { format } from 'date-fns';
+import { Appointment, ApiListResponse, PatientSummary, UserSummary } from '../types/api';
 
 type SortField = 'appointmentDate' | 'patient' | 'dentist' | 'type' | 'status' | null;
 type SortOrder = 'asc' | 'desc';
@@ -11,8 +12,10 @@ export default function Appointments() {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
-  const { data, isLoading } = useQuery('appointments', async () => {
-    const response = await api.get('/appointments', { params: { limit: 1000 } });
+  const { data, isLoading } = useQuery<Appointment[]>('appointments', async () => {
+    const response = await api.get<ApiListResponse<Appointment>>('/appointments', {
+      params: { limit: 1000 },
+    });
     return response.data.data;
   });
 
@@ -25,28 +28,37 @@ export default function Appointments() {
     }
   };
 
+  const formatPersonName = (person?: PatientSummary | UserSummary | string): string => {
+    if (!person || typeof person === 'string') return '';
+    return `${person.firstName || ''} ${person.lastName || ''}`.trim();
+  };
+
   const sortedAppointments = useMemo(() => {
     if (!data) return [];
     
-    let sorted = [...data];
+    const sorted = [...data];
+    const formatPersonNameForSort = (person?: PatientSummary | UserSummary | string): string =>
+      formatPersonName(person).toLowerCase();
     
     if (sortField) {
-      sorted.sort((a: any, b: any) => {
-        let aValue: any;
-        let bValue: any;
+      sorted.sort((a, b) => {
+        let aValue = '';
+        let bValue = '';
         
         switch (sortField) {
           case 'appointmentDate':
-            aValue = new Date(a.appointmentDate).getTime();
-            bValue = new Date(b.appointmentDate).getTime();
-            return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+            {
+              const aTime = new Date(a.appointmentDate).getTime();
+              const bTime = new Date(b.appointmentDate).getTime();
+              return sortOrder === 'asc' ? aTime - bTime : bTime - aTime;
+            }
           case 'patient':
-            aValue = `${a.patient?.firstName || ''} ${a.patient?.lastName || ''}`.toLowerCase();
-            bValue = `${b.patient?.firstName || ''} ${b.patient?.lastName || ''}`.toLowerCase();
+            aValue = formatPersonNameForSort(a.patient);
+            bValue = formatPersonNameForSort(b.patient);
             break;
           case 'dentist':
-            aValue = `${a.dentist?.firstName || ''} ${a.dentist?.lastName || ''}`.toLowerCase();
-            bValue = `${b.dentist?.firstName || ''} ${b.dentist?.lastName || ''}`.toLowerCase();
+            aValue = formatPersonNameForSort(a.dentist);
+            bValue = formatPersonNameForSort(b.dentist);
             break;
           case 'type':
             aValue = (a.type || '').toLowerCase();
@@ -146,16 +158,16 @@ export default function Appointments() {
               </thead>
               <tbody>
                 {sortedAppointments && sortedAppointments.length > 0 ? (
-                  sortedAppointments.map((apt: any) => (
+                  sortedAppointments.map((apt) => (
                   <tr key={apt._id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
                       {format(new Date(apt.appointmentDate), 'MM/dd/yyyy hh:mm a')}
                     </td>
                     <td className="py-3 px-4">
-                      {apt.patient?.firstName} {apt.patient?.lastName}
+                      {formatPersonName(apt.patient)}
                     </td>
                     <td className="py-3 px-4">
-                      {apt.dentist?.firstName} {apt.dentist?.lastName}
+                      {formatPersonName(apt.dentist)}
                     </td>
                     <td className="py-3 px-4 capitalize">{apt.type}</td>
                     <td className="py-3 px-4">
