@@ -17,7 +17,7 @@ if not exist .env (
     echo [INFO] Creating .env file from template...
     echo PORT=5000 > .env
     echo NODE_ENV=development >> .env
-    echo MONGODB_URI=mongodb://localhost:27017/dental-cms >> .env
+    echo DATABASE_URL=file:./data/dev.db >> .env
     echo JWT_SECRET=your-super-secret-jwt-key >> .env
     echo JWT_EXPIRE=7d >> .env
     echo CORS_ORIGIN=http://localhost:3000 >> .env
@@ -35,6 +35,9 @@ if not exist client\node_modules (
     call npm install
     cd ..
 )
+
+echo [INFO] Syncing database schema...
+call npx prisma db push
 
 :: Summary
 echo [SUCCESS] Everything is ready!

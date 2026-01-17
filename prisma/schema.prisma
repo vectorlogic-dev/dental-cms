@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdPatients     Patient[]     @relation("PatientCreatedBy")
+  dentistAppointments Appointment[] @relation("AppointmentDentist")
+  createdAppointments Appointment[] @relation("AppointmentCreatedBy")
+  dentistTreatments   Treatment[]   @relation("TreatmentDentist")
+  createdTreatments   Treatment[]   @relation("TreatmentCreatedBy")
+}
+
+model Patient {
+  id               String   @id @default(cuid())
+  patientNumber    String   @unique
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime
+  gender           String
+  email            String?
+  phone            String
+  address          Json?
+  emergencyContact Json?
+  medicalHistory   Json?
+  allergies        Json?
+  insurance        Json?
+  notes            String?
+  dentalChart      Json?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  createdById String
+  createdBy   User        @relation("PatientCreatedBy", fields: [createdById], references: [id])
+  appointments Appointment[]
+  treatments   Treatment[]
+}
+
+model Appointment {
+  id              String   @id @default(cuid())
+  appointmentDate DateTime
+  duration        Int      @default(30)
+  type            String
+  status          String   @default("scheduled")
+  notes           String?
+  reminders       Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patientId   String
+  patient     Patient @relation(fields: [patientId], references: [id])
+  dentistId   String
+  dentist     User    @relation("AppointmentDentist", fields: [dentistId], references: [id])
+  createdById String
+  createdBy   User    @relation("AppointmentCreatedBy", fields: [createdById], references: [id])
+  treatments  Treatment[]
+}
+
+model Treatment {
+  id            String   @id @default(cuid())
+  treatmentDate DateTime @default(now())
+  treatmentType String
+  toothNumbers  Json?
+  diagnosis     String?
+  procedure     String
+  description   String?
+  cost          Float
+  paid          Float    @default(0)
+  status        String   @default("pending")
+  notes         String?
+  attachments   Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  patientId   String
+  patient     Patient @relation(fields: [patientId], references: [id])
+  appointmentId String?
+  appointment  Appointment? @relation(fields: [appointmentId], references: [id])
+  dentistId   String
+  dentist     User    @relation("TreatmentDentist", fields: [dentistId], references: [id])
+  createdById String
+  createdBy   User    @relation("TreatmentCreatedBy", fields: [createdById], references: [id])
+}

@@ -1,10 +1,6 @@
-import mongoose from 'mongoose';
-import User from '../models/User';
-import Patient from '../models/Patient';
-import Appointment from '../models/Appointment';
-import Treatment from '../models/Treatment';
+import connectDB, { prisma } from '../config/database';
 import { addDays, setHours, setMinutes, startOfToday, startOfWeek, addWeeks } from 'date-fns';
-import connectDB from '../config/database';
+import { hashPassword } from '../utils/password';
 
 const seedData = async () => {
   try {
@@ -19,9 +15,12 @@ const seedData = async () => {
 
     const dentistDocs = [];
     for (const d of dentists) {
-      let doc = await User.findOne({ email: d.email });
+      let doc = await prisma.user.findUnique({ where: { email: d.email } });
       if (!doc) {
-        doc = await User.create({ ...d, password: 'password123', isActive: true });
+        const hashedPassword = await hashPassword('password123');
+        doc = await prisma.user.create({
+          data: { ...d, password: hashedPassword, isActive: true },
+        });
         console.log(`Created dentist: ${d.email}`);
       }
       dentistDocs.push(doc);
@@ -38,9 +37,11 @@ const seedData = async () => {
 
     const patientDocs = [];
     for (const p of patientData) {
-      let doc = await Patient.findOne({ patientNumber: p.patientNumber });
+      let doc = await prisma.patient.findUnique({ where: { patientNumber: p.patientNumber } });
       if (!doc) {
-        doc = await Patient.create({ ...p, createdBy: dentistDocs[0]._id });
+        doc = await prisma.patient.create({
+          data: { ...p, createdById: dentistDocs[0].id },
+        });
         console.log(`Created patient: ${p.firstName} ${p.lastName}`);
       }
       patientDocs.push(doc);
@@ -69,15 +70,17 @@ const seedData = async () => {
           
           const aptDate = setMinutes(setHours(currentDay, hour), minute);
 
-          const apt = await Appointment.create({
-            patient: patient._id,
-            dentist: dentist._id,
-            appointmentDate: aptDate,
-            duration: 30 + Math.floor(Math.random() * 60),
-            type,
-            status: statuses[Math.floor(Math.random() * statuses.length)],
-            notes: `Sample appointment for ${type}`,
-            createdBy: dentistDocs[0]._id,
+          const apt = await prisma.appointment.create({
+            data: {
+              patientId: patient.id,
+              dentistId: dentist.id,
+              appointmentDate: aptDate,
+              duration: 30 + Math.floor(Math.random() * 60),
+              type,
+              status: statuses[Math.floor(Math.random() * statuses.length)],
+              notes: `Sample appointment for ${type}`,
+              createdById: dentistDocs[0].id,
+            },
           });
 
           // If the appointment is treatment, create a corresponding treatment record
@@ -85,18 +88,20 @@ const seedData = async () => {
             const treatmentTypes = ['Root Canal', 'Filling', 'Extraction', 'Cleaning', 'Crown', 'Bridge'];
             const tType = type === 'cleaning' ? 'Cleaning' : treatmentTypes[Math.floor(Math.random() * treatmentTypes.length)];
             
-            await Treatment.create({
-              patient: patient._id,
-              appointment: apt._id,
-              dentist: dentist._id,
-              treatmentDate: aptDate,
-              treatmentType: tType,
-              procedure: tType,
-              cost: 100 + Math.floor(Math.random() * 900),
-              paid: Math.random() > 0.5 ? 100 : 0,
-              status: apt.status === 'completed' ? 'completed' : 'pending',
-              notes: `Automatic treatment record for ${tType}`,
-              createdBy: dentistDocs[0]._id,
+            await prisma.treatment.create({
+              data: {
+                patientId: patient.id,
+                appointmentId: apt.id,
+                dentistId: dentist.id,
+                treatmentDate: aptDate,
+                treatmentType: tType,
+                procedure: tType,
+                cost: 100 + Math.floor(Math.random() * 900),
+                paid: Math.random() > 0.5 ? 100 : 0,
+                status: apt.status === 'completed' ? 'completed' : 'pending',
+                notes: `Automatic treatment record for ${tType}`,
+                createdById: dentistDocs[0].id,
+              },
             });
           }
         }
@@ -192,39 +197,43 @@ const seedData = async () => {
     ];
 
     for (const t of seededTreatments) {
-      const exists = await Treatment.findOne({
-        patient: t.patient._id,
-        treatmentDate: t.treatmentDate,
-        treatmentType: t.treatmentType,
-        procedure: t.procedure,
-        notes: t.notes,
+      const exists = await prisma.treatment.findFirst({
+        where: {
+          patientId: t.patient.id,
+          treatmentDate: t.treatmentDate,
+          treatmentType: t.treatmentType,
+          procedure: t.procedure,
+          notes: t.notes,
+        },
       });
 
       if (!exists) {
-        await Treatment.create({
-          patient: t.patient._id,
-          dentist: t.dentist._id,
-          treatmentDate: t.treatmentDate,
-          treatmentType: t.treatmentType,
-          toothNumbers: t.toothNumbers,
-          diagnosis: t.diagnosis,
-          procedure: t.procedure,
-          description: t.description,
-          cost: t.cost,
-          paid: t.paid,
-          status: t.status,
-          notes: t.notes,
-          createdBy: dentistDocs[0]._id,
+        await prisma.treatment.create({
+          data: {
+            patientId: t.patient.id,
+            dentistId: t.dentist.id,
+            treatmentDate: t.treatmentDate,
+            treatmentType: t.treatmentType,
+            toothNumbers: t.toothNumbers,
+            diagnosis: t.diagnosis,
+            procedure: t.procedure,
+            description: t.description,
+            cost: t.cost,
+            paid: t.paid,
+            status: t.status,
+            notes: t.notes,
+            createdById: dentistDocs[0].id,
+          },
         });
       }
     }
 
     console.log('Seeding completed successfully!');
-    await mongoose.disconnect();
+    await prisma.$disconnect();
     process.exit(0);
   } catch (error) {
     console.error('Error seeding data:', error);
-    await mongoose.disconnect();
+    await prisma.$disconnect();
     process.exit(1);
   }
 };

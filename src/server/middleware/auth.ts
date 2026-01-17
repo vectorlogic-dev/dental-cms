@@ -1,10 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User, { IUser } from '../models/User';
+import { prisma } from '../config/database';
 import env from '../config/env';
 
+export type AuthUser = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  isActive: boolean;
+};
+
 export interface AuthRequest extends Request {
-  user?: IUser;
+  user?: AuthUser;
 }
 
 export const authenticate = async (
@@ -24,7 +33,17 @@ export const authenticate = async (
       userId: string;
     };
 
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+      },
+    });
 
     if (!user) {
       res.status(401).json({ message: 'Token is not valid' });

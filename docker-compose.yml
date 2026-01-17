@@ -1,11 +1,4 @@
 services:
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
   server:
     build: .
     ports:
@@ -13,12 +6,12 @@ services:
     environment:
       - PORT=5000
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://mongodb:27017/dental-cms
+      - DATABASE_URL=file:/app/data/dev.db
       - JWT_SECRET=your-super-secret-jwt-key
       - JWT_EXPIRE=7d
       - CORS_ORIGIN=http://localhost:3000
-    depends_on:
-      - mongodb
+    volumes:
+      - sqlite-data:/app/data
 
   client:
     build: ./client
@@ -28,4 +21,4 @@ services:
       - server
 
 volumes:
-  mongo-data:
+  sqlite-data:

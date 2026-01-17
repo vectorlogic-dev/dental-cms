@@ -1,28 +1,30 @@
-import mongoose from 'mongoose';
-import User from '../models/User';
-import connectDB from '../config/database';
+import connectDB, { prisma } from '../config/database';
+import { hashPassword } from '../utils/password';
 
 const createAdminUser = async () => {
   try {
     await connectDB();
 
     // Check if admin user already exists
-    const existingAdmin = await User.findOne({ email: 'admin@dentalcms.com' });
+    const existingAdmin = await prisma.user.findUnique({ where: { email: 'admin@dentalcms.com' } });
     if (existingAdmin) {
       console.log('Admin user already exists!');
       console.log('Email: admin@dentalcms.com');
-      await mongoose.disconnect();
+      await prisma.$disconnect();
       process.exit(0);
     }
 
     // Create admin user
-    await User.create({
-      email: 'admin@dentalcms.com',
-      password: 'admin123', // This will be hashed by the pre-save hook
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'admin',
-      isActive: true,
+    const hashedPassword = await hashPassword('admin123');
+    await prisma.user.create({
+      data: {
+        email: 'admin@dentalcms.com',
+        password: hashedPassword,
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'admin',
+        isActive: true,
+      },
     });
 
     console.log('Admin user created successfully!');
@@ -30,11 +32,11 @@ const createAdminUser = async () => {
     console.log('Password: admin123');
     console.log('Please change the password after first login!');
 
-    await mongoose.disconnect();
+    await prisma.$disconnect();
     process.exit(0);
   } catch (error) {
     console.error('Error creating admin user:', error);
-    await mongoose.disconnect();
+    await prisma.$disconnect();
     process.exit(1);
   }
 };

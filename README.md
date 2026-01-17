@@ -51,7 +51,7 @@ If you need to generate a default admin locally, see “Setup for IT”.
 
 ### Prerequisites
 - Node.js v18+
-- MongoDB v6+ (local or Atlas)
+- SQLite (bundled via Prisma)
 - Docker Desktop (optional)
 
 ### Environment
@@ -60,7 +60,7 @@ Create a `.env` file at the repo root:
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/dental-cms
+DATABASE_URL=file:./data/dev.db
 JWT_SECRET=change-this-in-production
 JWT_EXPIRE=7d
 CORS_ORIGIN=http://localhost:3000
@@ -69,6 +69,7 @@ CORS_ORIGIN=http://localhost:3000
 ### Run Locally
 ```bash
 npm run install:all
+npm run prisma:push
 npm run create:admin
 npm run dev
 ```

@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import User from '../models/User';
+import { prisma } from '../config/database';
 import { generateToken } from '../utils/generateToken';
 import { asyncHandler } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
+import { comparePassword, hashPassword } from '../utils/password';
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -12,28 +13,31 @@ export const register = asyncHandler(
     const { email, password, firstName, lastName, role } = req.body;
 
     // Check if user exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       res.status(400).json({ message: 'User already exists' });
       return;
     }
 
     // Create user
-    const user = await User.create({
-      email,
-      password,
-      firstName,
-      lastName,
-      role: role || 'receptionist',
+    const hashedPassword = await hashPassword(password);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        role: role || 'receptionist',
+      },
     });
 
-    const token = generateToken(user._id.toString());
+    const token = generateToken(user.id);
 
     res.status(201).json({
       success: true,
       token,
       user: {
-        id: user._id,
+        _id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -51,9 +55,11 @@ export const login = asyncHandler(
     const { email, password } = req.body;
 
     // Find user and include password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user || !(await comparePassword(password, user.password))) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
@@ -63,13 +69,13 @@ export const login = asyncHandler(
       return;
     }
 
-    const token = generateToken(user._id.toString());
+    const token = generateToken(user.id);
 
     res.json({
       success: true,
       token,
       user: {
-        id: user._id,
+        _id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -84,7 +90,17 @@ export const login = asyncHandler(
 // @access  Private
 export const getMe = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const user = await User.findById(req.user?._id);
+    const user = await prisma.user.findUnique({
+      where: { id: req.user?.id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+      },
+    });
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
@@ -94,7 +110,7 @@ export const getMe = asyncHandler(
     res.json({
       success: true,
       user: {
-        id: user._id,
+        _id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,

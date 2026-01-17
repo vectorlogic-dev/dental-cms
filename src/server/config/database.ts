@@ -1,12 +1,13 @@
-import mongoose from 'mongoose';
-import env from './env';
+import { PrismaClient } from '@prisma/client';
+
+export const prisma = new PrismaClient();
 
 const connectDB = async (): Promise<void> => {
   try {
-    await mongoose.connect(env.mongoUri);
-    console.log('MongoDB connected successfully');
+    await prisma.$connect();
+    console.log('SQLite connected successfully');
   } catch (error) {
-    console.error('MongoDB connection error:', error);
+    console.error('SQLite connection error:', error);
     process.exit(1);
   }
 };
